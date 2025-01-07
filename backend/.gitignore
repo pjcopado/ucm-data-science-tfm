@@ -1,0 +1,4 @@
+.venv
+__pyscache__
+.pytest_cache
+build

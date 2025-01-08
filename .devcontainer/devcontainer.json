@@ -1,0 +1,24 @@
+{
+  "name": "LLM Dev",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "python.pythonPath": "/usr/local/bin/python",
+        "python.formatting.provider": "black",
+        "editor.formatOnSave": true
+      },
+      "extensions": [
+        "ms-python.python",
+        "ms-toolsai.jupyter",
+        "esbenp.prettier-vscode",
+        "ms-azuretools.vscode-docker"
+      ]
+    }
+  },
+  "forwardPorts": [8888],
+  "workspaceFolder": "/workspaces",
+  "postCreateCommand": "if [ -f requirements.txt ]; then pip install -r requirements.txt; fi"
+}

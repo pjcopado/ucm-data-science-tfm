@@ -8,17 +8,16 @@ Este proyecto utiliza un modelo de lenguaje natural preentrenado para interpreta
 
 ```plaintext
 project/
-├── main.py                      # Archivo principal, punto de entrada del proyecto
+├── main.py                              # Archivo principal, punto de entrada del proyecto
+├── test.py                              # Archivo para ejecutar test del modelo
 ├── prompts/
-│   ├── prompt_generate_sql.txt  # Plantilla para generar las consultas SQL
-├── utils/
-│   ├── __init__.py              #
-│   ├── prompt_loader.py         # Carga y manejo de archivos de prompts
-│   ├── sql_generator.py         # Clase SQLQueryGenerator: Generación y validación de consultas SQL
-│   ├── sql_validator.py         # Validación avanzada de consultas SQL (con SQLGlot)
-│   └── postgres/
-│       ├── __init__.py          #
-│       ├── db_schema_loader.py  # Carga del esquema de la base de datos
+│   ├── prompt_generate_sql.txt          # Plantilla para generar las consultas SQL
+│   ├── prompt_generate_sql_error.txt    # Plantilla para generar las consultas SQL de reintento
+├── modules/
+│   ├── __init__.py                      #
+│   ├── prompt_loader.py                 # Carga y manejo de archivos de prompts
+│   ├── posgres.py                       # Conexión con posgres
+│   ├── sql_generator.py                 # Validación y ejecución del modelo de consultas SQL
 ├── models/
-│   ├── llama-3-sqlcoder-8b/     # Directorio del modelo preentrenado (tokenizador y modelo)
-└── README.md                    # Documentación del proyecto
+│   ├── llama-3-sqlcoder-8b/             # Directorio del modelo preentrenado (tokenizador y modelo)
+└── README.md                            # Documentación del proyecto

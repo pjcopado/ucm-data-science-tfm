@@ -9,7 +9,6 @@ Este proyecto utiliza un modelo de lenguaje natural preentrenado para interpreta
 ```plaintext
 project/
 ├── main.py                              # Archivo principal, punto de entrada del proyecto
-├── test.py                              # Archivo para ejecutar test del modelo
 ├── prompts/
 │   ├── prompt_generate_sql.txt          # Plantilla para generar las consultas SQL
 │   ├── prompt_generate_sql_error.txt    # Plantilla para generar las consultas SQL de reintento

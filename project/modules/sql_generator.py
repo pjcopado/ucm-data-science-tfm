@@ -4,7 +4,13 @@ from modules.postgres import Postgres
 from modules.prompt_loader import PromptLoader
 
 class SQLQueryGenerator:
-    def __init__(self, model, tokenizer, db_config, prompt_loader=None, max_attempts=3):
+    def __init__(
+            self,
+            model,
+            tokenizer,
+            db_config,
+            prompt_loader=None,
+            max_attempts=3):
         """
         Inicializa la clase SQLQueryGenerator.
 
@@ -18,7 +24,9 @@ class SQLQueryGenerator:
         self.model = model
         self.tokenizer = tokenizer
         self.max_attempts = max_attempts
-        self.prompt_loader = prompt_loader or PromptLoader(prompt_dir="./prompts")  # Fallback preconfigured
+        self.prompt_loader = prompt_loader or PromptLoader(
+            prompt_dir="./prompts"
+        )  # Fallback preconfigured
 
         # Instanciar Postgres y cargar el esquema
         self.postgres = Postgres(db_config)
@@ -26,8 +34,6 @@ class SQLQueryGenerator:
             self.db_schema = self.postgres.get_db_schema()
         except Exception as e:
             raise RuntimeError(f"Error al cargar el esquema de la base de datos: {e}")
-
-
 
     def validate_sql_query(self, sql_query):
         """
@@ -43,13 +49,16 @@ class SQLQueryGenerator:
             parsed = sqlglot.parse_one(sql_query)
         except ParseError as e:
             return {"status": "error", "message": f"Error de sintaxis: {str(e)}"}
-        
+
         # Validar tablas en el esquema
         tables_in_query = parsed.find_all("Table")
         for table in tables_in_query:
             table_name = table.name
             if table_name not in self.db_schema:
-                return {"status": "error", "message": f"La tabla '{table_name}' no existe en el esquema."}
+                return {
+                    "status": "error",
+                    "message": f"La tabla '{table_name}' no existe en el esquema.",
+                }
 
         # Validar columnas
         columns_in_query = parsed.find_all("Column")
@@ -58,40 +67,50 @@ class SQLQueryGenerator:
             table_name = column.table
             if table_name and table_name in self.db_schema:
                 if column_name not in self.db_schema[table_name]:
-                    return {"status": "error", "message": f"La columna '{column_name}' no existe en la tabla '{table_name}'."}
+                    return {
+                        "status": "error",
+                        "message": f"La columna '{column_name}' no existe en la tabla '{table_name}'.",
+                    }
 
         # Detectar ambigüedades comunes
         if "WHERE" not in sql_query.upper() and "JOIN" in sql_query.upper():
-            return {"status": "ambiguous", "message": "Consulta con JOIN sin un filtro WHERE, podría ser ineficiente."}
+            return {
+                "status": "ambiguous",
+                "message": "Consulta con JOIN sin un filtro WHERE, podría ser ineficiente.",
+            }
 
         return {"status": "valid", "message": "La consulta es válida."}
 
-
-
-    def generate_sql_query(self, prompt_file, retry_prompt_file, user_input, instructions, database_schema):
+    def generate_sql_query(
+        self,
+        prompt_file: str,
+        retry_prompt_file: str,
+        user_input: str,
+        instructions: str,
+        database_schema: str,
+    ):
         """
         Genera una consulta SQL y realiza correcciones automáticas en caso de error.
-
         Args:
             prompt_file (str): nombre del archivo plantilla del prompt.
             retry_prompt_file (str): nombre del archivo plantilla del prompt de reintento si error.
             user_input (str): Pregunta del usuario.
             instructions (str): Instrucciones adicionales.
             database_schema (str): Definiciones de tablas.
-
         Returns:
             str: Consulta SQL final generada (o None si falla).
         """
         attempts = 0
         errors = []
+        initial_query = None
 
         while attempts < self.max_attempts:
             if not errors:
                 prompt_content = self.prompt_loader.load_prompt(prompt_file)
                 prompt = prompt_content.format(
                     user_question=user_input,
-                    instructions=instructions + error_section,
-                    database_schema=database_schema
+                    instructions=instructions,
+                    database_schema=database_schema,
                 )
             else:
                 for i, error in enumerate(errors, start=1):
@@ -99,16 +118,22 @@ class SQLQueryGenerator:
                 prompt_content = self.prompt_loader.load_prompt(retry_prompt_file)
                 prompt = prompt_content.format(
                     user_question=user_input,
-                    instructions=instructions,                    
+                    instructions=instructions + error_section,
                     database_schema=database_schema,
                     initial_query=initial_query,
-                    error_description=error_section
+                    error_description=error_section,
                 )
 
             # Execute Model
             inputs = self.tokenizer(prompt, return_tensors="pt")
-            outputs = self.model.generate(**inputs)  # params pre-configured in generation_config.json
-            sql_query = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
+
+            outputs = self.model.generate(
+                **inputs
+            )  # params pre-configured in generation_config.json
+
+            sql_query = self.tokenizer.decode(
+                outputs[0],
+                skip_special_tokens=True)
 
             # Validate result
             validation_results = self.validate_sql_query(sql_query)
@@ -129,4 +154,3 @@ class SQLQueryGenerator:
 
         print("No se pudo generar una consulta válida tras múltiples intentos.")
         return None
-

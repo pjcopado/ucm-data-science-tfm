@@ -1,5 +1,6 @@
 import psycopg2
 
+
 class Postgres:
     def __init__(self, db_config):
         """
@@ -9,8 +10,6 @@ class Postgres:
             db_config (dict): Configuración de conexión a la base de datos.
         """
         self.db_config = db_config
-
-
 
     def get_db_schema(self):
         """
@@ -40,18 +39,16 @@ class Postgres:
 
         return schema
 
-
-
     def get_db_schema_and_relationships(self):
         """
         Recupera el esquema de las tablas y las relaciones entre ellas.
-        
+
         Returns:
             str: Informe completo del esquema y relaciones.
         """
         schema_details = []
         relationships = []
-        
+
         # Query para obtener el esquema de las tablas
         schema_query = """
         SELECT table_name, column_name, data_type
@@ -59,28 +56,28 @@ class Postgres:
         WHERE table_schema = 'public'
         ORDER BY table_name, ordinal_position;
         """
-        
+
         # Query para obtener las relaciones (claves foráneas)
         relationships_query = """
-        SELECT 
+        SELECT
             tc.constraint_name AS fk_name,
             tc.table_name AS source_table,
             kcu.column_name AS source_column,
             ccu.table_name AS target_table,
             ccu.column_name AS target_column
-        FROM 
+        FROM
             information_schema.table_constraints AS tc
-        JOIN 
+        JOIN
             information_schema.key_column_usage AS kcu
-        ON 
+        ON
             tc.constraint_name = kcu.constraint_name
-        JOIN 
+        JOIN
             information_schema.constraint_column_usage AS ccu
-        ON 
+        ON
             ccu.constraint_name = tc.constraint_name
-        WHERE 
+        WHERE
             tc.constraint_type = 'FOREIGN KEY'
-        ORDER BY 
+        ORDER BY
             source_table, target_table;
         """
 
@@ -99,7 +96,13 @@ class Postgres:
                     # Obtener relaciones entre tablas
                     cur.execute(relationships_query)
                     relationships.append("Relaciones entre tablas (Foreign Keys):")
-                    for fk_name, source_table, source_column, target_table, target_column in cur.fetchall():
+                    for (
+                        fk_name,
+                        source_table,
+                        source_column,
+                        target_table,
+                        target_column,
+                    ) in cur.fetchall():
                         relationships.append(
                             f"  - {fk_name}: {source_table}({source_column}) -> {target_table}({target_column})"
                         )

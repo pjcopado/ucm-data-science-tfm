@@ -2,15 +2,15 @@ from modules.prompt_loader import PromptLoader
 from modules.postgres import Postgres
 from modules.sql_generator import SQLQueryGenerator
 from transformers import AutoTokenizer, AutoModelForCausalLM
-from huggingface_hub import snapshot_download
 
 model_dir = "./models/llama-3-sqlcoder-8b"
+
 db_config = {                      # --> se podría pedir al usuario la configuración que quiera y dejar una preconfigurada
     "host": "localhost",
     "port": 5432,
-    "database": "my_database",
-    "user": "my_user",
-    "password": "my_password"
+    "database": "sandoz",
+    "user": "postgres",
+    "password": "postgres"
 }
 
 
@@ -51,6 +51,16 @@ retry_prompt_file = "prompt_generate_sql_error.txt"
 
 
 #-------------------- MODEL EXECUTION --------------------#
+sql_generator = SQLQueryGenerator(
+    model=model,
+    tokenizer=tokenizer,
+    db_config=db_config,
+    prompt_loader=prompt_loader,
+    max_attempts=3)
 
-sql_generator = SQLQueryGenerator(model, tokenizer, db_config, prompt_loader, 3)
-sql_query = sql_generator.generate_sql_with_corrections(user_input, instructions, database_schema)
+sql_query = sql_generator.generate_sql_query(
+    prompt_file=prompt_file,
+    retry_prompt_file=retry_prompt_file,
+    user_input=user_input,
+    instructions=instructions,
+    database_schema=database_schema)

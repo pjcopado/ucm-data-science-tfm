@@ -1,7 +1,10 @@
 import os
+import logging
+
 
 class PromptLoader:
-    def __init__(self, prompt_dir="./prompts"):
+    def __init__(self,
+                 prompt_dir="./prompts"):
         """
         Inicializa el cargador de prompts.
         Args:
@@ -20,11 +23,19 @@ class PromptLoader:
         """
         file_path = os.path.join(self.prompt_dir, file_name)
 
+        # Print the file path for debugging
+        logging.info(f"Checking file path: {file_path}")
+
         if not os.path.exists(file_path):
-            raise FileNotFoundError(f"El archivo {file_name} no existe en {self.prompt_dir}.")
-        
-        with open(file_path, "r", encoding="utf-8") as file:
-            return file.read()
+            raise FileNotFoundError(
+                f"El archivo {file_name} no existe en {self.prompt_dir}."
+            )
+
+        # Load the file content (example)
+        with open(file_path, 'r') as file:
+            content = file.read()
+
+        return content
 
     def list_prompts(self):
         """
@@ -35,5 +46,5 @@ class PromptLoader:
         """
         if not os.path.exists(self.prompt_dir):
             raise FileNotFoundError(f"La carpeta {self.prompt_dir} no existe.")
-        
+
         return [f for f in os.listdir(self.prompt_dir) if f.endswith(".txt")]

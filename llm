@@ -1,0 +1,43 @@
+import os
+from transformers import AutoTokenizer, AutoModelForCausalLM
+
+class InsightGenerator:
+    def __init__(self, model_dir="./models/llama-3-sqlcoder-8b"):
+        """
+        Inicializa el generador de insights con el modelo y el tokenizador.
+        """
+        if not os.path.exists(model_dir):
+            raise FileNotFoundError(f"El directorio del modelo {model_dir} no existe.")
+
+        self.tokenizer = AutoTokenizer.from_pretrained(model_dir)
+        self.model = AutoModelForCausalLM.from_pretrained(model_dir)
+
+    def generate_insight(self, query_result, context=""):
+        """
+        Genera un insight basado en los resultados de la consulta SQL.
+
+        Args:
+            query_result (str): Resultado de la consulta SQL formateado como texto.
+            context (str): Contexto adicional para el modelo (opcional).
+
+        Returns:
+            str: Insight generado por el modelo.
+        """
+        # Crear el prompt para el modelo
+        prompt = f"""
+        Contexto: Los datos financieros generados por la consulta SQL son los siguientes:
+        {query_result}
+
+        Instrucciones:
+        - Resume los datos principales.
+        - Proporciona un insight accionable basado en los resultados.
+        - Resalta tendencias o puntos clave.
+        """
+        if context:
+            prompt += f"\nInformación adicional: {context}"
+
+        # Generar la respuesta con el modelo
+        inputs = self.tokenizer(prompt, return_tensors="pt")
+        outputs = self.model.generate(inputs["input_ids"], max_length=300)
+
+        return self.tokenizer.decode(outputs[0], skip_special_tokens=True)

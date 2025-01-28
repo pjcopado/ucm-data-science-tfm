@@ -20,3 +20,5 @@ project/
 ├── models/
 │   ├── llama-3-sqlcoder-8b/             # Directorio del modelo preentrenado (tokenizador y modelo)
 └── README.md                            # Documentación del proyecto
+
+.\.venv\Scripts\Activate

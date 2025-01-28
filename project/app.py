@@ -41,7 +41,6 @@ def main(user_input, instructions=None, database_schema=None):
     sql_generator = SQLQueryGenerator(
         model=model,
         tokenizer=tokenizer,
-        db_config=db_config,
         prompt_loader=prompt_loader,
         max_attempts=3)
 
@@ -49,9 +48,9 @@ def main(user_input, instructions=None, database_schema=None):
     sql_query = sql_generator.generate_sql_query(
         prompt_file=prompt_file,
         retry_prompt_file=retry_prompt_file,
+        database_schema=database_schema,
         user_input=user_input,
-        instructions=instructions,
-        database_schema=database_schema
+        instructions=instructions
     )
 
     print(sql_query)

@@ -1,14 +1,20 @@
+import os
+import sys
 import sqlglot
 from sqlglot.errors import ParseError
-from modules.postgres import Postgres
-from modules.prompt_loader import PromptLoader
+
+# Set the root directory to import own modules
+root_dir = os.path.dirname(os.getcwd())
+sys.path.append(root_dir)
+
+from .prompt_loader import PromptLoader  # noqa
+
 
 class SQLQueryGenerator:
     def __init__(
             self,
             model,
             tokenizer,
-            db_config,
             prompt_loader=None,
             max_attempts=3):
         """
@@ -17,7 +23,6 @@ class SQLQueryGenerator:
         Args:
             model: Modelo de generación de texto (Hugging Face).
             tokenizer: Tokenizador del modelo.
-            db_config (dict): Esquema conexión de la base de datos.
             prompt_loader (PromptLoader, opcional): Loader para cargar prompts. Si no se proporciona, se debe instanciar manualmente.
             max_attempts (int): Número máximo de intentos para corregir errores.
         """
@@ -27,13 +32,6 @@ class SQLQueryGenerator:
         self.prompt_loader = prompt_loader or PromptLoader(
             prompt_dir="./prompts"
         )  # Fallback preconfigured
-
-        # Instanciar Postgres y cargar el esquema
-        self.postgres = Postgres(db_config)
-        try:
-            self.db_schema = self.postgres.get_db_schema()
-        except Exception as e:
-            raise RuntimeError(f"Error al cargar el esquema de la base de datos: {e}")
 
     def validate_sql_query(self, sql_query):
         """
@@ -85,18 +83,18 @@ class SQLQueryGenerator:
         self,
         prompt_file: str,
         retry_prompt_file: str,
+        database_schema: str,
         user_input: str,
         instructions: str,
-        database_schema: str,
     ):
         """
         Genera una consulta SQL y realiza correcciones automáticas en caso de error.
         Args:
             prompt_file (str): nombre del archivo plantilla del prompt.
             retry_prompt_file (str): nombre del archivo plantilla del prompt de reintento si error.
+            database_schema (str): Definiciones de tablas.
             user_input (str): Pregunta del usuario.
             instructions (str): Instrucciones adicionales.
-            database_schema (str): Definiciones de tablas.
         Returns:
             str: Consulta SQL final generada (o None si falla).
         """
@@ -134,6 +132,7 @@ class SQLQueryGenerator:
             sql_query = self.tokenizer.decode(
                 outputs[0],
                 skip_special_tokens=True)
+            print(f"Consulta generada:\n {sql_query}\n")
 
             # Validate result
             validation_results = self.validate_sql_query(sql_query)

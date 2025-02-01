@@ -33,4 +33,4 @@ async def ask(
     obj_in: sch.ChatCreateSch = Body(...),
     repository: repository.ChatRepository = Depends(get_repository(repo_type=repository.ChatRepository)),
 ):
-    return repository.create(obj_in)
+    return await repository.create(obj_in=obj_in)

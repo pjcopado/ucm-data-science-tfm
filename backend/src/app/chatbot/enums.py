@@ -4,6 +4,6 @@ import enum
 class ChatMessageResponseStatusEnum(str, enum.Enum):
     PENDING = "pending"
     PROCESSING = "processing"
-    APPROVED = "approved"
+    COMPLETED = "completed"
     REJECTED = "rejected"
     DELETED = "deleted"

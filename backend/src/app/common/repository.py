@@ -22,7 +22,7 @@ class BaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
     async def get_all_stmt(self):
         stmt = sa.select(self.model)
-        return stmt.order_by(self.model.created_at.asc())
+        return stmt.order_by(self.model.created_at.desc())
 
     async def get_all(self):
         stmt = await self.get_all_stmt()

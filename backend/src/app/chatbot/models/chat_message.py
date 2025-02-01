@@ -18,7 +18,7 @@ class ChatMessageModel(Base, UUIDMixIn):
     query_explanation: Mapped[str] = mapped_column(sa.Text, nullable=True)
     query_response: Mapped[str] = mapped_column(sa.Text, nullable=True)
     response: Mapped[str] = mapped_column(sa.Text, nullable=True)
-    is_validated: Mapped[bool] = mapped_column(sa.Boolean, nullable=True)
+    is_valid: Mapped[bool] = mapped_column(sa.Boolean, nullable=True)
     status: Mapped[str] = mapped_column(sa.String, nullable=False, default=ChatMessageResponseStatusEnum.PENDING.value)
 
     chat = relationship("ChatModel", back_populates="messages")

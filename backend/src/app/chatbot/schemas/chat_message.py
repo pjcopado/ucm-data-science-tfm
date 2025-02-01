@@ -13,11 +13,11 @@ class ChatMessageCreateSch(ChatMessageBaseSch):
 
 
 class ChatMessageUpdateSch(OrmBaseModel):
-    is_validated: bool | None
+    is_valid: bool | None
 
 
 class ChatMessageSch(ChatMessageBaseSch, TimestampModelMixin, UUIDModelMixin):
     response: str | None
-    is_Validated: bool | None
+    is_valid: bool | None
     query_explanation: str | None
     status: ChatMessageResponseStatusEnum

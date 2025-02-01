@@ -1,7 +1,6 @@
 __all__ = ["ChatCreateSch", "ChatUpdateSch", "ChatSch"]
 
 from src.app.common.schemas import OrmBaseModel, TimestampModelMixin, UUIDModelMixin
-from src.app.chatbot.enums import ChatMessageResponseStatusEnum
 
 
 class ChatBaseSch(OrmBaseModel):
@@ -17,4 +16,5 @@ class ChatUpdateSch(OrmBaseModel):
 
 
 class ChatSch(ChatBaseSch, TimestampModelMixin, UUIDModelMixin):
+    title: str
     pass

@@ -1,8 +1,8 @@
 """create chat message
 
-Revision ID: 20250201123029
-Revises: 20250201122552
-Create Date: 2025-02-01 13:30:31.637957
+Revision ID: 20250201222930
+Revises: 20250201222904
+Create Date: 2025-02-01 23:29:32.266385
 
 """
 
@@ -11,8 +11,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = "20250201123029"
-down_revision = "20250201122552"
+revision = "20250201222930"
+down_revision = "20250201222904"
 branch_labels = None
 depends_on = None
 
@@ -28,7 +28,7 @@ def upgrade() -> None:
         sa.Column("query_explanation", sa.Text(), nullable=True),
         sa.Column("query_response", sa.Text(), nullable=True),
         sa.Column("response", sa.Text(), nullable=True),
-        sa.Column("is_validated", sa.Boolean(), nullable=True),
+        sa.Column("is_valid", sa.Boolean(), nullable=True),
         sa.Column("status", sa.String(), nullable=False),
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
         sa.Column("updated_at", sa.DateTime(timezone=True), nullable=True),

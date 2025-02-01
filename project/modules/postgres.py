@@ -105,11 +105,11 @@ class Postgres:
                     # Obtener esquema de las tablas
                     cur.execute(schema_query)
                     current_table = None
-                    for table_name, column_name, data_type, colum_description in cur.fetchall():
+                    for table_name, column_name, data_type, description in cur.fetchall():
                         if table_name != current_table:
                             current_table = table_name
                             schema_details.append(f"Table: {table_name}")
-                        schema_details.append(f"  - {column_name}: {data_type} - Column description: {colum_description}")
+                        schema_details.append(f"  - {column_name}: {data_type} - Column description: {description}")
 
                     # Obtener relaciones entre tablas
                     cur.execute(relationships_query)

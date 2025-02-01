@@ -66,23 +66,23 @@ def test_get_db_schema_and_relationships(postgres):
     mock_cursor = MagicMock()
     mock_cursor.fetchall.side_effect = [
         [
-            ("continents", "code", "character"),
-            ("continents", "name", "character varying"),
-            ("countries", "code", "character"),
-            ("countries", "name", "character varying"),
-            ("countries", "full_name", "character varying"),
-            ("countries", "iso3", "character"),
-            ("countries", "number", "character"),
-            ("countries", "continent_code", "character"),
-            ("monthly_lo", "month", "integer"),
-            ("monthly_lo", "market", "character varying"),
-            ("monthly_lo", "bu", "character varying"),
-            ("monthly_lo", "value", "numeric"),
-            ("monthly_sales", "month", "integer"),
-            ("monthly_sales", "market", "character varying"),
-            ("monthly_sales", "bu", "character varying"),
-            ("monthly_sales", "volume", "numeric"),
-            ("monthly_sales", "value", "numeric"),
+            ("continents", "code", "character", ""),
+            ("continents", "name", "character varying", ""),
+            ("countries", "code", "character", ""),
+            ("countries", "name", "character varying", ""),
+            ("countries", "full_name", "character varying", ""),
+            ("countries", "iso3", "character", ""),
+            ("countries", "number", "character", ""),
+            ("countries", "continent_code", "character", ""),
+            ("monthly_lo", "month", "integer", "The month of the sales data, formatted as YYYYMM"),
+            ("monthly_lo", "market", "character varying", "The id of the country representing the market (e.g., US, DE, IT)"),
+            ("monthly_lo", "bu", "character varying", "The bussiness unit identifier (GN_BP for biosimilars, GN_RE for retail)"),
+            ("monthly_lo", "value", "numeric", "The planned monetary value of sales (net) in the specified month, region, market, and business unit"),
+            ("monthly_sales", "month", "integer", "The month of the sales data, formatted as YYYYMM"),
+            ("monthly_sales", "market", "character varying", "The id of the country representing the market (e.g., US, DE, IT)"),
+            ("monthly_sales", "bu", "character varying", "The bussiness unit identifier (GN_BP for biosimilars, GN_RE for retail)"),
+            ("monthly_sales", "volume", "numeric", "The volume of sales in the specified month, region, market, and business unit"),
+            ("monthly_sales", "value", "numeric", "The monetary value of sales (net) in the specified month, region, market, and business unit"),
         ],
         [
             ("fk_countries_continents", "countries", "continent_code", "continents", "code"),
@@ -99,31 +99,32 @@ def test_get_db_schema_and_relationships(postgres):
 
     with patch("psycopg2.connect") as mock_connect:
         mock_connect.return_value.__enter__.return_value.cursor.return_value.__enter__.return_value = mock_cursor
-        report = postgres.get_db_schema_and_relationships()
+        db_schema_and_relationships = postgres.get_db_schema_and_relationships()
 
-    expected_report = (
-        "TABLA: continents\n"
-        "  - code: character\n"
-        "  - name: character varying\n"
-        "TABLA: countries\n"
-        "  - code: character\n"
-        "  - name: character varying\n"
-        "  - full_name: character varying\n"
-        "  - iso3: character\n"
-        "  - number: character\n"
-        "  - continent_code: character\n"
-        "TABLA: monthly_lo\n"
-        "  - month: integer\n"
-        "  - market: character varying\n"
-        "  - bu: character varying\n"
-        "  - value: numeric\n"
-        "TABLA: monthly_sales\n"
-        "  - month: integer\n"
-        "  - market: character varying\n"
-        "  - bu: character varying\n"
-        "  - volume: numeric\n"
-        "  - value: numeric\n\n"
-        "Relaciones entre tablas (Foreign Keys):\n"
+    print(db_schema_and_relationships)
+    expected_db_schema_and_relationships = (
+        "Table: continents\n"
+        "  - code: character - Column description:\n"
+        "  - name: character varying - Column description:\n"
+        "Table: countries\n"
+        "  - code: character - Column description:\n"
+        "  - name: character varying - Column description:\n"
+        "  - full_name: character varying - Column description:\n"
+        "  - iso3: character - Column description:\n"
+        "  - number: character - Column description:\n"
+        "  - continent_code: character - Column description:\n"
+        "Table: monthly_lo\n"
+        "  - month: integer - Column description: The month of the sales data, formatted as YYYYMM\n"
+        "  - market: character varying - Column description: The id of the country representing the market (e.g., US, DE, IT)\n"
+        "  - bu: character varying - Column description: The bussiness unit identifier (GN_BP for biosimilars, GN_RE for retail)\n"
+        "  - value: numeric - Column description: The planned monetary value of sales (net) in the specified month, region, market, and business unit\n"
+        "Table: monthly_sales\n"
+        "  - month: integer - Column description: The month of the sales data, formatted as YYYYMM\n"
+        "  - market: character varying - Column description: The id of the country representing the market (e.g., US, DE, IT)\n"
+        "  - bu: character varying - Column description: The bussiness unit identifier (GN_BP for biosimilars, GN_RE for retail)\n"
+        "  - volume: numeric - Column description: The volume of sales in the specified month, region, market, and business unit\n"
+        "  - value: numeric - Column description: The monetary value of sales (net) in the specified month, region, market, and business unit\n\n"
+        "Table relationships (Foreign Keys):\n"
         "  - fk_countries_continents: countries(continent_code) -> continents(code)\n"
         "  - fk_market: monthly_lo(market) -> countries(code)\n"
         "  - fk_market: monthly_lo(market) -> countries(code)\n"
@@ -135,4 +136,5 @@ def test_get_db_schema_and_relationships(postgres):
         "  - fk_market: monthly_sales(market) -> countries(code)\n"
     )
 
-    assert report == expected_report
+    print(expected_db_schema_and_relationships)
+    assert db_schema_and_relationships == expected_db_schema_and_relationships

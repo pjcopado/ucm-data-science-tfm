@@ -51,6 +51,24 @@ class Postgres:
 
         # Query para obtener el esquema de las tablas
         schema_query = """
+        SELECT
+            c.table_schema,
+            c.table_name,
+            c.column_name,
+            c.data_type,
+            pgd.description
+        FROM pg_catalog.pg_statio_all_tables as st
+        LEFT JOIN pg_catalog.pg_description pgd on (
+            pgd.objoid = st.relid
+        )
+        RIGHT JOIN information_schema.columns c on (
+            pgd.objsubid   = c.ordinal_position and
+            c.table_schema = st.schemaname and
+            c.table_name   = st.relname
+        )
+        WHERE c.table_schema = 'public'
+        ORDER BY c.table_name, c.ordinal_position;
+
         SELECT table_name, column_name, data_type
         FROM information_schema.columns
         WHERE table_schema = 'public'
@@ -87,15 +105,15 @@ class Postgres:
                     # Obtener esquema de las tablas
                     cur.execute(schema_query)
                     current_table = None
-                    for table_name, column_name, data_type in cur.fetchall():
+                    for table_name, column_name, data_type, colum_description in cur.fetchall():
                         if table_name != current_table:
                             current_table = table_name
-                            schema_details.append(f"TABLA: {table_name}")
-                        schema_details.append(f"  - {column_name}: {data_type}")
+                            schema_details.append(f"Table: {table_name}")
+                        schema_details.append(f"  - {column_name}: {data_type} - Column description: {colum_description}")
 
                     # Obtener relaciones entre tablas
                     cur.execute(relationships_query)
-                    relationships.append("Relaciones entre tablas (Foreign Keys):")
+                    relationships.append("Table relationships (Foreign Keys):")
                     for (
                         fk_name,
                         source_table,
@@ -113,3 +131,27 @@ class Postgres:
         # Crear el informe final
         report = "\n".join(schema_details) + "\n\n" + "\n".join(relationships)
         return report
+
+    def get_db_tables(self):
+        """
+        Recupera la lista de tablas de la base de datos.
+        Returns:
+            list: Lista de nombres de tablas.
+        """
+        tables = []
+        query = """
+        SELECT table_name
+        FROM information_schema.tables
+        WHERE table_schema = 'public'
+        ORDER BY table_name;
+        """
+
+        try:
+            with psycopg2.connect(**self.db_config) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query)
+                    tables = [table_name for table_name, in cur.fetchall()]
+        except Exception as e:
+            raise RuntimeError(f"Error al obtener la lista de tablas: {e}")
+
+        return tables

@@ -1,0 +1,38 @@
+name: sandoz
+
+services:
+  web:
+    container_name: sandoz-app
+    build: .
+    platform: linux/x86_64
+    ports:
+      - 8000:8000
+      - 5678:5678
+    volumes:
+      - .:/code
+    env_file:
+      - .env.docker
+    depends_on:
+      - postgres
+
+  postgres:
+    container_name: sandoz-postgresql
+    image: postgres:15.4
+    ports:
+      - 5433:5433
+    command: -p 5433
+    env_file:
+      - .env.docker
+
+  pgadmin:
+    container_name: sandoz-pgadmin
+    image: dpage/pgadmin4:8.1
+    restart: always
+    ports:
+      - 5050:80
+    volumes:
+      - ./pgadmin:/var/lib/pgadmin
+    env_file:
+      - .env.docker
+    depends_on:
+      - postgres

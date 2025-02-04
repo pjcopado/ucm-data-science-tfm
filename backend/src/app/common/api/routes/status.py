@@ -7,6 +7,6 @@ from fastapi import FastAPI
 app = FastAPI()
 
 
-@router.get("/health", status_code=status.HTTP_200_OK, summary="API StatusI")
+@router.get("/health", status_code=status.HTTP_200_OK, summary="API Status")
 def get_status():
     return {"status": "OK"}

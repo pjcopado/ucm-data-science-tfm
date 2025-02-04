@@ -1,8 +1,8 @@
-name: sandoz
+name: chatbot
 
 services:
   web:
-    container_name: sandoz-app
+    container_name: chatbot-app
     platform: linux/x86_64
     build:
       context: ./backend
@@ -17,8 +17,10 @@ services:
       - postgres
 
   postgres:
-    container_name: sandoz-postgresql
+    container_name: chatbot-postgresql
     image: postgres:15.4
+    volumes:
+      - postgres-local:/var/lib/postgresql/data
     ports:
       - 5433:5433
     command: -p 5433
@@ -26,14 +28,43 @@ services:
       - backend/.env.docker
 
   pgadmin:
-    container_name: sandoz-pgadmin
+    container_name: chatbot-pgadmin
     image: dpage/pgadmin4:8.1
     restart: always
     ports:
       - 5050:80
     volumes:
-      - ./pgadmin:/var/lib/pgadmin
+      - pgadmin-local:/var/lib/pgadmin
     env_file:
       - backend/.env.docker
     depends_on:
       - postgres
+
+  openWebUI:
+    container_name: chatbot-WebUI
+    image: ghcr.io/open-webui/open-webui:main
+    restart: always
+    ports:
+      - "3000:8080"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - open-webui-local:/app/backend/data
+
+  ollama:
+    container_name: chatbot-ollama
+    image: ollama/ollama:0.5.7
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-local:/root/.ollama
+
+volumes:
+  postgres-local:
+    external: true
+  pgadmin-local:
+    external: true
+  ollama-local:
+    external: true
+  open-webui-local:
+    external: true

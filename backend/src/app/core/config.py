@@ -37,7 +37,7 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: str = "postgres"
     POSTGRES_HOST: str = "localhost"
     POSTGRES_PORT: int = 5432
-    POSTGRES_DB: str = "sandoz"
+    POSTGRES_DB: str = "chatbot"
 
     DB_MIN_POOL_CON: int = 10
     DB_MAX_POOL_CON: int = 80
@@ -68,8 +68,8 @@ class Settings(BaseSettings):
             "root_path": self.ROOT_PATH,
             "contact": {
                 "name": "backend team",
-                "url": "https://www.sandoz.io",
-                "email": "backend@sandoz.com",
+                "url": "https://www.chatbot.io",
+                "email": "backend@chatbot.com",
             },
             "swagger_ui_parameters": {
                 "defaultModelsExpandDepth": -1,

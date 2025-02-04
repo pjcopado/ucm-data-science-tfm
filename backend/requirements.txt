@@ -19,3 +19,6 @@ slowapi==0.1.9
 tensorflow==2.18.0
 SQLAlchemy==2.0.37
 uvicorn==0.34.0
+
+pydantic==2.10.5
+pydantic_ai==0.0.21

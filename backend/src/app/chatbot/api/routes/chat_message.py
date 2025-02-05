@@ -1,6 +1,3 @@
-import datetime as dt
-import uuid
-
 from fastapi import APIRouter, Body, status, Depends
 from fastapi_pagination import Page
 from fastapi_pagination.ext.sqlalchemy import paginate as sqla_paginate

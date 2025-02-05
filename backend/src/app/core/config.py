@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     TITLE: str = "Chatbot"
     VERSION: str = "0.0.1"
     DESCRIPTION: str | None = None
-    DEBUG: bool = False
+    DEBUG: bool = True
 
     # APP SETTINGS
     ROOT_PATH: str = ""

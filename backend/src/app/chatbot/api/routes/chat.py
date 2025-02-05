@@ -4,8 +4,7 @@ from fastapi_pagination.ext.sqlalchemy import paginate as sqla_paginate
 
 from src.app.common.api.dependencies.repository import get_repository
 
-from src.app.chatbot.api import dependencies as deps
-from src.app.chatbot import repository, schemas as sch
+from src.app.chatbot import repository, schemas as sch, service
 
 router = APIRouter(prefix="/chats", tags=["chat"])
 
@@ -27,10 +26,14 @@ async def get_chats(
     "",
     summary="create new chat",
     status_code=status.HTTP_200_OK,
-    response_model=sch.ChatSch,
+    # response_model=sch.ChatSch,
 )
 async def ask(
     obj_in: sch.ChatCreateSch = Body(...),
     repository: repository.ChatRepository = Depends(get_repository(repo_type=repository.ChatRepository)),
 ):
-    return await repository.create(obj_in=obj_in)
+    chat_service = service.ChatService(repository=repository)
+    prompt = obj_in.question
+    result = await chat_service.ask(prompt=prompt)
+    return {"response": result}
+    # return await repository.create(obj_in=obj_in)

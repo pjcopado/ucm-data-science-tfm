@@ -1,95 +1,87 @@
 import torch
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
+
 class InsightGenerator:
-    def __init__(self, model_name="google/flan-t5-xl"):
+    def __init__(self, model_dir="./models/flan-t5-xl"):
         """
-        Inicializa el generador de respuestas con un modelo optimizado para razonamiento.
+        Initializes the response generator with a model optimized for reasoning.
         """
         try:
             self.device = "cuda" if torch.cuda.is_available() else "cpu"
-            print(f"Cargando modelo en {self.device}...")
+            print(f"Loading model on {self.device}...")
 
-            self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-            self.model = AutoModelForSeq2SeqLM.from_pretrained(model_name).to(self.device)
+            # Load the model and tokenizer once
+            self.tokenizer = AutoTokenizer.from_pretrained(model_dir)
+            self.model = AutoModelForSeq2SeqLM.from_pretrained(model_dir).to(self.device)
 
-            print("Modelo cargado correctamente.")
+            print("Model loaded successfully.")
 
         except Exception as e:
-            raise RuntimeError(f"Error al cargar el modelo: {str(e)}")
+            raise RuntimeError(f"Error loading the model: {str(e)}")
 
     def generate_response(self, user_question, sql_result):
         """
-        Genera una respuesta en lenguaje humano a partir de la pregunta del usuario y el resultado SQL.
+        Generates a human language response based on the user's question and the SQL result.
 
         Args:
-            user_question (str): Pregunta original del usuario.
-            sql_result (str | int | float): Resultado de la consulta SQL.
+            user_question (str): Original question from the user.
+            sql_result (str | int | float): Result of the SQL query.
 
         Returns:
-            str: Respuesta generada en lenguaje natural y explicativa.
+            str: Generated response in natural and explanatory language.
         """
         if not user_question.strip():
-            return "No se recibió una pregunta válida del usuario."
+            return "No valid question received from the user."
 
         if not sql_result:
-            return "No se encontraron datos para responder a la consulta."
+            return "No data found to answer the query."
 
-        # 🔹 **Nuevo Prompt Mejorado para Razonamiento**
+        # 🔹 **New Improved Prompt for Reasoning**
         prompt = f"""
-Ejemplo 1:
-Pregunta: "¿Cuánto vendimos en el sector de moda en enero de 2023?"
-Resultado SQL: 15,340
-Respuesta esperada: "Las ventas totales en el sector de moda durante enero de 2023 fueron de 15,340 unidades. Enero suele ser un mes con buenas ventas debido a las rebajas de temporada."
+        Example 1:
+        Question: "What were the sales in Germany in August 2021?"
+        SQL Result: 1291206,76
+        Expected Response: "In August 2021, the sales in Germany amounted to 1,291,206.76 euros."
 
-Ejemplo 2:
-Pregunta: "¿Cuál fue la facturación total en la categoría de alimentos en diciembre de 2022?"
-Resultado SQL: 48,950
-Respuesta esperada: "En diciembre de 2022, la facturación total en la categoría de alimentos fue de 48,950 dólares. Este mes suele ser alto en ventas debido a la demanda de productos para las festividades."
+        Example 2:
+        Question: "What was the total revenue in the food category in December 2022?"
+        SQL Result: 48,950
+        Expected Response: "In December 2022, the total revenue in the food category was 48,950 dollars. This month is usually high in sales due to the demand for holiday products."
 
-Ejemplo 3:
-Pregunta: "¿Cuántas unidades se vendieron en la categoría de deportes en abril de 2022?"
-Resultado SQL: 12,000
-Respuesta esperada: "En abril de 2022, la categoría de deportes vendió 12,000 unidades, lo que refleja un alto interés en el equipamiento deportivo con la llegada del buen clima."
+        Example 3:
+        Question: "How many units were sold in the sports category in April 2022?"
+        SQL Result: 12,000
+        Expected Response: "In April 2022, the sports category sold 12,000 units, reflecting a high interest in sports equipment with the arrival of good weather."
 
-Ahora responde la siguiente pregunta de manera similar pero no igual con tu propio razonamiento, razonando el contexto correctamente:
-Pregunta: "{user_question}"
-Resultado SQL: {sql_result}
-Respuesta esperada:
-"""
+        Now answer the following question similarly but not identically with your own reasoning, reasoning the context correctly:
+        Question: "{user_question}"
+        SQL Result: {sql_result}
+        Expected Response:
+        """
 
         try:
-            # Tokenización
-            inputs = self.tokenizer(prompt, return_tensors="pt", padding=True, truncation=True).to(self.device)
+            # Tokenization
+            inputs = self.tokenizer(
+                prompt, return_tensors="pt", padding=True, truncation=True
+            ).to(self.device)
 
-            # 🔹 **Generación Optimizada**
+            # 🔹 **Optimized Generation**
             outputs = self.model.generate(
                 inputs["input_ids"],
-                max_length=150,  # Permite respuestas más largas
+                max_length=150,  # Allows longer responses
                 do_sample=True,
-                temperature=0.7,  # Más control en la variabilidad
+                temperature=0.7,  # More control over variability
                 top_p=0.9,
-                num_return_sequences=1
+                num_return_sequences=1,
             )
 
-            # Decodificación del texto generado
-            response = self.tokenizer.decode(outputs[0], skip_special_tokens=True).strip()
+            # Decoding the generated text
+            response = self.tokenizer.decode(
+                outputs[0], skip_special_tokens=True
+            ).strip()
 
-            return response if response else "No se pudo generar una respuesta válida."
+            return response if response else "Could not generate a valid response."
 
         except Exception as e:
-            return f"Error al generar la respuesta: {str(e)}"
-
-
-# 🔥 **Ejemplo de Prueba**
-if __name__ == "__main__":
-    insight_gen = InsightGenerator()
-
-    # 🔹 **Simulando Pregunta del Usuario y Respuesta SQL**
-    user_question = "¿Cuales fueron las ventas del primer trimestre del 2019 de productos de tela?"
-    sql_result = 1900  # Simulamos la respuesta SQL como una cifra
-
-    # Generar la respuesta en lenguaje natural y explicativa
-    response = insight_gen.generate_response(user_question, sql_result)
-
-    print("\n🗨️ **Respuesta Generada:**\n", response)
+            return f"Error generating the response: {str(e)}"

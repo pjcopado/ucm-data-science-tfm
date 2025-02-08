@@ -6,5 +6,5 @@ class ChatRepository(BaseRepository[models.ChatModel, sch.ChatCreateSch, sch.Cha
     model = models.ChatModel
 
     async def create(self, *, obj_in: sch.ChatCreateSch, **kwargs):
-        messages = [models.ChatMessageModel(question=obj_in.question)]
+        messages = [models.ChatMessageModel(question=obj_in["question"])]
         return await super().create(obj_in={}, messages=messages, **kwargs)

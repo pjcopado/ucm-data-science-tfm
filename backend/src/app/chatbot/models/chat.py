@@ -11,8 +11,8 @@ class ChatModel(Base, UUIDMixIn):
     messages = relationship("ChatMessageModel", back_populates="chat", lazy="joined", order_by="ChatMessageModel.created_at")
 
     @hybrid_property
-    def title(self) -> str:
-        return self.messages[0].question
+    def first_message(self) -> str:
+        return self.messages[0]
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(messages count = {len(self.messages)})"

@@ -1,3 +1,5 @@
+import uuid
+
 from pydantic import BaseModel
 
 from pydantic_ai import Agent
@@ -8,11 +10,12 @@ from src.app.chatbot import repository, schemas as sch
 
 class ChatService:
 
-    def __init__(self, repository: repository.ChatRepository):
-        self.repository = repository
+    def __init__(self, chat_repository: repository.ChatRepository, chat_message_repository: repository.ChatMessageRepository):
+        self.chat_repository = chat_repository
+        self.chat_message_repository = chat_message_repository
 
-    async def create(self, obj_in: sch.ChatCreateSch) -> sch.ChatSch:
-        return await self.repository.create(obj_in=obj_in)
+    async def create(self, obj_in: sch.ChatCreateSch | dict) -> sch.ChatSch:
+        return await self.chat_repository.create(obj_in=obj_in)
 
     def create_prompt(self, prompt: str):
         return prompt
@@ -33,6 +36,16 @@ class ChatService:
         # result = agent.run_sync(prompt)
         result = await agent.run(prompt)
         return result.data
+
+    async def create_message(self, obj_in: sch.ChatMessageCreateSch, chat_id: uuid.UUID) -> sch.ChatMessageSch:
+        obj_db = await self.chat_repository.create(obj_in=obj_in, chat_id=chat_id)
+        response = await self.ask(obj_in.question)
+        return await self.chat_message_repository.update(obj_db=obj_db, obj_in=sch.ChatMessageUpdateSch(response=response))
+
+    async def create_chat(self, obj_in: sch.ChatCreateSch) -> sch.ChatSch:
+        prompt = self.create_prompt(obj_in.question)
+        result = await self.ask(prompt)
+        return await self.create(obj_in=obj_in)
 
 
 # RESPONSE

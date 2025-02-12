@@ -1,0 +1,6 @@
+Correct the following SQL Query: {{initial_query}}
+
+The errors returned by the database are:
+{{error_description}}
+
+The Query have to answer this question:{{user_input}}{{user_instructions}}

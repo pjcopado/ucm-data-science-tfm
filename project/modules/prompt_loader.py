@@ -3,8 +3,7 @@ import logging
 
 
 class PromptLoader:
-    def __init__(self,
-                 prompt_dir="./prompts"):
+    def __init__(self, prompt_dir="./prompts"):
         """
         Inicializa el cargador de prompts.
         Args:
@@ -32,7 +31,7 @@ class PromptLoader:
             )
 
         # Load the file content (example)
-        with open(file_path, 'r') as file:
+        with open(file_path, "r") as file:
             content = file.read()
 
         return content

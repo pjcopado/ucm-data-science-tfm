@@ -3,6 +3,7 @@ import threading
 import queue
 import time
 
+
 class LLMHandler:
     def __init__(
         self,
@@ -12,11 +13,10 @@ class LLMHandler:
         n_gpu_layers=16,
         temperature=0,
         top_p=0.95,
-        prompt_cache="./data/prompt_cahe.bin"
+        prompt_cache="./data/prompt_cahe.bin",
     ):
-        
         self.model_path = f"./models/gguf/{model_name}.gguf"
-            
+
         cmd = [
             "llama-cli",
             "--model", str(self.model_path),
@@ -45,7 +45,7 @@ class LLMHandler:
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             universal_newlines=True,
-            bufsize=1
+            bufsize=1,
         )
 
         # Cola para almacenar líneas de la salida
@@ -61,7 +61,6 @@ class LLMHandler:
 
         self._consume_until_model_ready(timeout=900)
 
-
     def _consume_until_model_ready(self, timeout=900):
         t0 = time.time()
         while True:
@@ -69,7 +68,9 @@ class LLMHandler:
                 line = self.stdout_queue.get(timeout=1)
             except queue.Empty:
                 if (time.time() - t0) > timeout:
-                    print("[WARN][LLMHandler][llama.cpp >] Timeout waiting for 'user' turn.")
+                    print(
+                        "[WARN][LLMHandler][llama.cpp >] Timeout waiting for 'user' turn."
+                    )
                     break
                 continue
 
@@ -84,8 +85,6 @@ class LLMHandler:
 
         time.sleep(15)
 
-
-
     def _consume_until_reverse_prompt(self, timeout=900):
         t0 = time.time()
         captured = []
@@ -95,14 +94,16 @@ class LLMHandler:
                 line = self.stdout_queue.get(timeout=1)
             except queue.Empty:
                 if (time.time() - t0) > timeout:
-                    print("[WARN][LLMHandler][llama.cpp >] Timeout waiting for 'user' turn.")
+                    print(
+                        "[WARN][LLMHandler][llama.cpp >] Timeout waiting for 'user' turn."
+                    )
                     break
                 continue
 
             print("[LLMHandler][llama.cpp >]", line, end="")
 
             if line.strip() == "<|start_header_id|>assistant<|end_header_id|>":
-                capturing = True 
+                capturing = True
                 continue
 
             if capturing and "<|eot_id|>" in line:
@@ -117,13 +118,7 @@ class LLMHandler:
 
         return "".join(captured).replace("<|eot_id|>", "").strip()
 
-
-
-    def generate(
-        self,
-        prompt
-    ) -> str:
-
+    def generate(self, prompt) -> str:
         prompt = str(prompt)
 
         if self.process.poll() is not None:
@@ -142,8 +137,6 @@ class LLMHandler:
         # Opcional: podrías limpiar la repetición del prompt o hacer un parse más avanzado
         return output.strip()
 
-
-
     def close(self):
         """
         Cierra el proceso llama.cpp si sigue activo.
@@ -152,4 +145,3 @@ class LLMHandler:
             self.process.terminate()
             self.process.wait()
             print("[LLMHandler] llama.cpp process finished")
-

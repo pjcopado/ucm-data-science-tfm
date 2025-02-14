@@ -2,6 +2,7 @@ import json
 from modules.prompt_loader import PromptLoader
 from jinja2 import Template
 
+
 class PromptTemplate:
     def __init__(self, model_name):
         self.template_path = f"./templates/{model_name}.jinja"
@@ -21,17 +22,17 @@ class PromptTemplate:
         error_list=None,
         initial_query=None,
         bos_token="<|begin_of_text|>",
-        add_generation_prompt=False
+        add_generation_prompt=False,
     ):
         print("[PromptTemplate] Loading prompt file...")
-                
+
         format_params = {
             "user_input": user_input.strip(),
             "user_instructions": user_instructions.strip(),
             "db_schema": db_schema,
             "historic_query": "",
             "error_description": "",
-            "initial_query": ""
+            "initial_query": "",
         }
 
         if similarity_list:
@@ -39,7 +40,9 @@ class PromptTemplate:
                 f"   • SIMILARITY {sim}: {item['user_input']} -> {item['query']}"
                 for item, sim in similarity_list
             ]
-            format_params["historic_query"] = "HISTORIC SIMILAR QUERY:\n" + "\n".join(historic_lines)
+            format_params["historic_query"] = "HISTORIC SIMILAR QUERY:\n" + "\n".join(
+                historic_lines
+            )
 
         if error_list:
             error_lines = [
@@ -53,22 +56,15 @@ class PromptTemplate:
         prompt_formatted = Template(prompt_content).render(**format_params)
         print(f"[PromptTemplate] Prompt rendered: {prompt_formatted}")
 
-        messages = [
-            {
-                "role": role,
-                "content": prompt_formatted
-            }
-        ]
+        messages = [{"role": role, "content": prompt_formatted}]
 
         prompt_render = self.jinja_template.render(
             messages=messages,
             bos_token=bos_token,
-            add_generation_prompt=add_generation_prompt
+            add_generation_prompt=add_generation_prompt,
         )
 
         return prompt_render
-
-
 
     def generate_prompt_combined(
         self,
@@ -82,15 +78,14 @@ class PromptTemplate:
         error_list,
         initial_query,
         bos_token="<|begin_of_text|>",
-        add_generation_prompt=False
+        add_generation_prompt=False,
     ):
-        
         format_params = {
             "user_question": user_input.strip(),
             "user_instructions": user_instructions.strip(),
             "db_schema": db_schema,
             "error_description": "",
-            "initial_query": ""
+            "initial_query": "",
         }
         if error_list:
             error_lines = [
@@ -102,21 +97,13 @@ class PromptTemplate:
 
         main_prompt_content = self.prompt_loader.load_prompt(main_prompt_file)
         main_prompt_formatted = Template(main_prompt_content).render(**format_params)
-        messages = [
-            {
-                "role": main_role,
-                "content": main_prompt_formatted
-            }
-        ]
+        messages = [{"role": main_role, "content": main_prompt_formatted}]
 
         second_prompt_content = self.prompt_loader.load_prompt(second_prompt_file)
-        second_prompt_formatted = Template(second_prompt_content).render(**format_params)
-        second_messages = [
-            {
-                "role": second_role,
-                "content": second_prompt_formatted
-            }
-        ]
+        second_prompt_formatted = Template(second_prompt_content).render(
+            **format_params
+        )
+        second_messages = [{"role": second_role, "content": second_prompt_formatted}]
 
         # Combinar ambas listas de mensajes
         messages.extend(second_messages)
@@ -124,7 +111,7 @@ class PromptTemplate:
         prompt_render = self.jinja_template.render(
             messages=messages,
             bos_token=bos_token,
-            add_generation_prompt=add_generation_prompt
+            add_generation_prompt=add_generation_prompt,
         )
 
         return prompt_render

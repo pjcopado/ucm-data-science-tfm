@@ -3,17 +3,19 @@ from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
 
 class InsightGenerator:
-    def __init__(self, model_dir="./models/flan-t5-xl"):
+    def __init__(self, model_name="google/flan-t5-xl"):
         """
         Initializes the response generator with a model optimized for reasoning.
+        With local model -> model_name="./models/flan-t5-xl"
+        With Hugging Face model -> model_name="google/flan-t5-xl"
         """
         try:
             self.device = "cuda" if torch.cuda.is_available() else "cpu"
             print(f"Loading model on {self.device}...")
 
             # Load the model and tokenizer once
-            self.tokenizer = AutoTokenizer.from_pretrained(model_dir)
-            self.model = AutoModelForSeq2SeqLM.from_pretrained(model_dir).to(self.device)
+            self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+            self.model = AutoModelForSeq2SeqLM.from_pretrained(model_name).to(self.device)
 
             print("Model loaded successfully.")
 

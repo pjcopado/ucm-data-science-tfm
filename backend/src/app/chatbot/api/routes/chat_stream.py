@@ -44,142 +44,35 @@ import uuid
 
 
 LONG_TEXT = (
-    "This is a long text that will be streamed in chunks. "
+    "This is a long text that will be streamed in chunks."
     # "Streaming large responses is useful when dealing with AI-generated text, "
     # "news articles, or other lengthy content. "
     # "Each sentence is sent as a JSON object to simulate real-time generation."
 )
 
 
-async def long_json_stream():
-    """Simulates a long text response, streamed in JSON format."""
-
-    # Split text into chunks (simulating AI response generation)
-    chunks = LONG_TEXT.split(" ")
-
-    current_text = ""
-    for word in chunks:
-        current_text += word + " "
-        loguru.logger.info(current_text)
-        yield json.dumps({"content": current_text.strip()}) + "\n"
-        sleep_time = random.randint(1, 5) / 10
-        await asyncio.sleep(sleep_time)  # Simulate streaming delay
-
-
-@router.get("/stream_long_json")
-async def stream_long_json():
-    """Streams long text in JSON format."""
-    return StreamingResponse(long_json_stream(), media_type="application/json")
-
-
-########################################################################
-
-
-async def long_text_stream():
-    """Simulates a long text response, streamed in JSON format."""
-
-    # Split text into chunks (simulating AI response generation)
-    chunks = LONG_TEXT.split(" ")
-
-    current_text = ""
-    for word in chunks:
-        current_text += word + " "
-        # logging.info(current_text)
-        loguru.logger.info(current_text)
-        yield current_text.strip() + "\n"
-        sleep_time = random.randint(1, 5) / 10
-        await asyncio.sleep(sleep_time)  # Simulate streaming delay
-
-
-@router.get("/stream_long_text")
-async def stream_long_json():
-    """Streams long text in JSON format."""
-    return StreamingResponse(long_text_stream(), media_type="text/plain")
-
-
-########################################################################
-
-
-async def long_text_and_json_stream():
-    """Simulates a long text response, streamed in JSON format."""
-
-    # Split text into chunks (simulating AI response generation)
-    chunks = LONG_TEXT.split(" ")
-
-    current_text = ""
-    for word in chunks:
-        current_text += word + " "
-        # logging.info(current_text)
-        loguru.logger.info(current_text)
-        yield current_text.strip() + "\n"
-        sleep_time = random.randint(1, 5) / 10
-        await asyncio.sleep(sleep_time)  # Simulate streaming delay
-
-    record_id = uuid.uuid4()
-
-    json_response = json.dumps({"record_id": str(record_id), "status": "completed", "text": current_text})
-    yield json_response
-
-
-@router.get("/stream_long_text_and_json")
-async def stream_long_json():
-    """Streams long text in JSON format."""
-    return StreamingResponse(long_text_and_json_stream(), media_type="text/plain")
-
-
-########################################################################
-# application/x-ndjson
-
-
-async def ndjson():
-    """Simulates a long text response, streamed in JSON format."""
-
-    # Split text into chunks (simulating AI response generation)
-    chunks = LONG_TEXT.split(" ")
-
-    current_text = ""
-    for word in chunks:
-        current_text += word + " "
-        # logging.info(current_text)
-        loguru.logger.info(current_text)
-        yield json.dumps({"content": current_text.strip()}) + "\n"
-        sleep_time = random.randint(1, 5) / 10
-        await asyncio.sleep(sleep_time)  # Simulate streaming delay
-
-    record_id = uuid.uuid4()
-
-    json_response = json.dumps({"record_id": str(record_id), "status": "completed", "text": current_text})
-    yield json_response
-
-
-@router.get("/ndjson")
-async def stream_long_json():
-    """Streams long text in JSON format."""
-    return StreamingResponse(ndjson(), media_type="application/x-ndjson")
-
-
-########################################################################
-
-
 async def event_stream():
-    """Simulates a long text response, streamed in JSON format."""
-
-    # Split text into chunks (simulating AI response generation)
+    record_id = str(uuid.uuid4())
     chunks = LONG_TEXT.split(" ")
 
-    current_text = ""
+    """Envía un objeto JSON en partes como eventos SSE."""
+    data = {
+        "id": record_id,
+        "content": ''
+    }
+    
+    yield f"data: {json.dumps({'id': data['id']})}\n\n"
+    await asyncio.sleep(1)
+
     for word in chunks:
-        current_text += word + " "
-        # logging.info(current_text)
-        loguru.logger.info(current_text)
-        yield json.dumps({"content": current_text.strip()}) + "\n"
+        data["content"] += word + ' '
+        loguru.logger.info(f"Enviando chunk: {data["content"].strip()}")
+        yield f"data: {json.dumps({'content': data['content']})}\n\n" 
         sleep_time = random.randint(1, 5) / 10
-        await asyncio.sleep(sleep_time)  # Simulate streaming delay
+        await asyncio.sleep(sleep_time)  
+    
+    yield f"data: {json.dumps({'end': True})}\n\n"
 
-    record_id = uuid.uuid4()
-
-    json_response = json.dumps({"record_id": str(record_id), "status": "completed", "text": current_text})
-    yield json_response
 
 
 @router.get("/event_stream")
@@ -190,27 +83,6 @@ async def stream_long_json():
 
 ########################################################################
 
-
-async def event_stream_2():
-    """Simulates a long text response, streamed in JSON format."""
-
-    # Split text into chunks (simulating AI response generation)
-    chunks = LONG_TEXT.split(" ")
-
-    current_text = ""
-    for word in chunks:
-        current_text += word + " "
-        # logging.info(current_text)
-        loguru.logger.info(current_text)
-        yield json.dumps({"content": current_text.strip()}) + "\n"
-        sleep_time = random.randint(1, 5) / 10
-        await asyncio.sleep(sleep_time)  # Simulate streaming delay
-
-
-@router.get("/event_stream_2")
-async def stream_long_json():
-    """Streams long text in JSON format."""
-    return StreamingResponse(event_stream_2(), media_type="text/event-stream")
 
 
 # agent = Agent("openai:gpt-4o")

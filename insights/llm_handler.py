@@ -6,12 +6,12 @@ import time
 class LLMHandler:
     def __init__(
         self,
-        model_name,
-        system_prompt,
+        model_name="mistral-7b-instruct-v0.2.Q4_K_M",
+        system_prompt="",
         n_ctx=4096,
         n_gpu_layers=16,
         temperature=0.7,
-        top_p=0.9,
+        top_p=0.9
     ):
         self.model_path = f"./models/gguf/{model_name}.gguf"
 
@@ -26,10 +26,9 @@ class LLMHandler:
             "--ctx-size", str(n_ctx),
             "--temp", str(temperature),
             "--top_p", str(top_p),
-            "-no-cnv",
+            "--repeat_penalty", "1.1",
             "--keep", "-1",
             "-p", str(system_prompt),
-            "--in-prefix", ">>>",
             "--in-suffix", "<|start_header_id|>assistant<|end_header_id|>\n\n",
             "-sp"
         ]
@@ -42,7 +41,7 @@ class LLMHandler:
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             universal_newlines=True,
-            bufsize=1,
+            bufsize=1
         )
 
         self.stdout_queue = queue.Queue()
@@ -76,7 +75,7 @@ class LLMHandler:
                 print("[ERROR][LLMHandler] Error:", line)
                 break
 
-        time.sleep(15)
+        time.sleep(5)
 
     def generate(self, prompt) -> str:
         if self.process.poll() is not None:
@@ -122,7 +121,6 @@ class LLMHandler:
         return "".join(captured).replace("<|eot_id|>", "").strip()
 
     def close(self):
-        """Cierra el proceso de llama.cpp si sigue activo."""
         if self.process and self.process.poll() is None:
             self.process.terminate()
             self.process.wait()

@@ -28,12 +28,9 @@ class SQLQueryGenerator:
         
         # Instanciar Postgres y cargar el esquema
         self.postgres = Postgres(db_config)
-        try:
-            logger.info("Fetching table definitions from the database...")
-            self.db_schema = self.postgres.get_db_schema()
-            self.db_schema_and_relationships = self.postgres.get_db_schema_and_relationships()
-        except Exception as e:
-            raise RuntimeError(f"Error al cargar el esquema de la base de datos: {e}")
+        logger.info("Fetching table definitions from the database...")
+        self.db_schema = self.postgres.get_db_schema()
+        self.db_schema_and_relationships = self.postgres.get_db_schema_and_relationships()
         
         # Instanciar otros modulos
         self.prompt_template = PromptTemplate(model_name)

@@ -104,11 +104,6 @@ class Postgres:
         )
         WHERE c.table_schema = 'public'
         ORDER BY c.table_name, c.ordinal_position;
-
-        SELECT table_name, column_name, data_type
-        FROM information_schema.columns
-        WHERE table_schema = 'public'
-        ORDER BY table_name, ordinal_position;
         """
 
         # Query para obtener las relaciones (claves foráneas)
@@ -143,7 +138,7 @@ class Postgres:
                     table_columns = {}
 
                     # Agrupar columnas por tabla
-                    for table_name, column_name, data_type, description in cur.fetchall():
+                    for table_schema, table_name, column_name, data_type, description in cur.fetchall():
                         table_columns.setdefault(table_name, []).append(
                             (column_name, data_type, description)
                         )

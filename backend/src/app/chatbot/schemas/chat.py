@@ -1,4 +1,4 @@
-__all__ = ["ChatCreateSch", "ChatUpdateSch", "ChatSch"]
+__all__ = ["ChatCreateSch", "ChatCreateRequestSch", "ChatUpdateSch", "ChatSch"]
 
 from src.app.common.schemas import OrmBaseModel, TimestampModelMixin, UUIDModelMixin
 from .chat_message import ChatMessageSch
@@ -14,6 +14,10 @@ class ChatCreateRequestSch(OrmBaseModel):
 
 class ChatCreateSch(ChatBaseSch):
     question: str
+    query: str | None = None
+    query_explanation: str | None = None
+    query_response: str | None = None
+    response: str | None = None
 
 
 class ChatUpdateSch(OrmBaseModel):

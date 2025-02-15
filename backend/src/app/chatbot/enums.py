@@ -7,3 +7,7 @@ class ChatMessageResponseStatusEnum(str, enum.Enum):
     COMPLETED = "completed"
     REJECTED = "rejected"
     DELETED = "deleted"
+
+
+class InsightModelEnum(str, enum.Enum):
+    HUGGINGFACE = "google/flan-t5-xl"

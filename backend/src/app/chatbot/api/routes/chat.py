@@ -29,7 +29,7 @@ async def get_chats(
     response_model=sch.ChatSch,
 )
 async def ask(
-    obj_in: sch.ChatCreateSch = Body(...),
+    obj_in: sch.ChatCreateRequestSch = Body(...),
     chat_repository: repository.ChatRepository = Depends(get_repository(repo_type=repository.ChatRepository)),
     chat_message_repository: repository.ChatMessageRepository = Depends(
         get_repository(repo_type=repository.ChatMessageRepository)
@@ -38,14 +38,35 @@ async def ask(
     chat_service = service.ChatService(chat_repository=chat_repository, chat_message_repository=chat_message_repository)
     prompt = obj_in.question
     # TODO
-    # response = await chat_service.ask(prompt=prompt)
-    query_explanation = None
     response = None
-    obj_in = {
-        "question": prompt,
-        "response": response,
-        "is_valid": None,
-        "query_explanation": query_explanation,
-        "status": enums.ChatMessageResponseStatusEnum.COMPLETED.value,
-    }
+    response = await chat_service.ask_2(prompt=prompt)
+    print(response)
+    query_explanation = None
+    obj_in = sch.ChatCreateSch(
+        question=prompt,
+        response=response,
+        is_valid=None,
+        query_explanation=query_explanation,
+        status=enums.ChatMessageResponseStatusEnum.COMPLETED.value,
+    )
     return await chat_repository.create(obj_in=obj_in)
+
+
+# ########################
+
+# from fastapi import FastAPI, HTTPException
+# from pydantic import BaseModel
+# from typing import Optional
+# from modules.sql_generator_v2 import SQLQueryGenerator
+
+# @router.post(
+#     "/test-model",
+#     summary="test model",
+#     status_code=status.HTTP_200_OK,
+#     # response_model=sch.ChatSch,
+# )
+# async def test_model(
+#     obj_in: sch.ChatCreateRequestSch = Body(...),
+
+# ):
+#     MODEL_NAME = "llama-3-sqlcoder-8b-Q8_0"

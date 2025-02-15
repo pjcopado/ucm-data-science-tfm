@@ -40,6 +40,7 @@ import json
 import random
 import logging
 import loguru
+import uuid
 
 
 async def long_text_json_stream():
@@ -62,6 +63,11 @@ async def long_text_json_stream():
         yield current_text.strip() + "\n"
         sleep_time = random.randint(1, 5) / 10
         await asyncio.sleep(sleep_time)  # Simulate streaming delay
+
+    record_id = uuid.uuid4()
+
+    json_response = json.dumps({"record_id": str(record_id), "status": "completed", "text": current_text})
+    yield json_response
 
 
 @router.get("/stream_long_json")

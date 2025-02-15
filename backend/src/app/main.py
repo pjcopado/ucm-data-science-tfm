@@ -14,7 +14,8 @@ from src.app.api import router
 
 
 def initialize_backend_application() -> FastAPI:
-    app = FastAPI(lifespan=lifespan, **settings.set_backend_app_attributes)
+    # app = FastAPI(lifespan=lifespan, **settings.set_backend_app_attributes)
+    app = FastAPI(**settings.set_backend_app_attributes)
 
     register_middlewares(app)
     add_pagination(app)

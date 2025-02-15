@@ -1,0 +1,63 @@
+# Use an official Python base image
+FROM python:3.10-slim
+
+# Set environment variables to reduce output noise and configure timezone
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+ENV TZ=UTC
+
+# Set working directory
+WORKDIR /workspaces
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    git \
+    wget \
+    curl \
+    libssl-dev \
+    libffi-dev \
+    libxml2-dev \
+    libxslt1-dev \
+    zlib1g-dev \
+    libgl1-mesa-glx \
+    git-lfs && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Initialize Git LFS
+RUN git lfs install
+
+# Install Python dependencies
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel
+
+# Install TensorFlow and related libraries for LLM development
+RUN pip install --no-cache-dir \
+    tensorflow \
+    transformers \
+    datasets \
+    tokenizers \
+    accelerate \
+    langchain \
+    huggingface-hub \
+    numpy \
+    pandas \
+    matplotlib \
+    jupyterlab \
+    scikit-learn \
+    notebook \
+    ipywidgets
+
+# Install additional tools for development
+RUN pip install --no-cache-dir \
+    pylint \
+    black \
+    isort \
+    mypy \
+    flake8
+
+# Expose JupyterLab port
+EXPOSE 8888
+
+# Set the default command
+CMD ["jupyter", "lab", "--ip=0.0.0.0", "--allow-root", "--no-browser"]

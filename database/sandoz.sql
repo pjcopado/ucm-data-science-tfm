@@ -21,34 +21,19 @@ CREATE TABLE countries (
     number CHAR(3) NOT NULL,
     full_name VARCHAR(255) NOT NULL,
     PRIMARY KEY (code),
-    CONSTRAINT fk_countries_continents FOREIGN KEY (continent_code)
-    REFERENCES continents (code)
+    CONSTRAINT fk_countries_continents FOREIGN KEY (continent_code) REFERENCES continents (code)
+    CONSTRAINT fk_code_mapping FOREIGN KEY (code) REFERENCES market_mapping (market)
 );
-
--- Create table for month calendar
-CREATE TABLE month_calendar (
-	yyyymm INT NOT NULL,
-	month_number INT NOT NULL,
-	month_name VARCHAR(9) NOT NULL,
-	month_name_abbr CHAR(3) NOT NULL,
-	quarter_number INT NOT NULL,
-	quarter_name VARCHAR(9) NOT NULL,
-	"year" VARCHAR
-);
-
-ALTER TABLE month_calendar ADD CONSTRAINT month_calendar_pk PRIMARY KEY (yyyymm);
 
 -- Contains historical data about volumes and net sales
 CREATE TABLE IF NOT EXISTS monthly_balance (
-    month INTEGER,
+    month VARCHAR(6),
     market VARCHAR(2),
     bu VARCHAR(5),
     volume NUMERIC(10, 2),
     value NUMERIC(18, 2),
     CONSTRAINT fk_market FOREIGN KEY (market) REFERENCES countries (code)
 );
-
-ALTER TABLE monthly_balance ADD CONSTRAINT fk_month FOREIGN KEY (month) REFERENCES month_calendar (yyyymm);
 
 COMMENT ON COLUMN monthly_balance.month IS 'The month of the sales data, formatted as YYYYMM';
 COMMENT ON COLUMN monthly_balance.market IS 'The id of the country representing the market (e.g., US, DE, IT)';
@@ -58,14 +43,12 @@ COMMENT ON COLUMN monthly_balance.value IS 'The monetary value of sales (net) in
 
 -- Contains planning data about net sales
 CREATE TABLE IF NOT EXISTS monthly_lo (
-    month INTEGER,
+    month VARCHAR(6),
     market VARCHAR(2),
     bu VARCHAR(5),
     value DECIMAL(18, 2),
     CONSTRAINT fk_market FOREIGN KEY (market) REFERENCES countries (code)
 );
-
-ALTER TABLE monthly_lo ADD CONSTRAINT fk_month FOREIGN KEY (month) REFERENCES month_calendar (yyyymm);
 
 COMMENT ON COLUMN monthly_lo.month IS 'The month of the sales data, formatted as YYYYMM';
 COMMENT ON COLUMN monthly_lo.market IS 'The id of the country representing the market (e.g., US, DE, IT)';
@@ -83,7 +66,6 @@ CREATE TABLE IF NOT EXISTS market_mapping (
 -- Cargar datos desde archivos CSV
 COPY continents FROM '/app/sql/data/continents.csv' DELIMITER ',' CSV HEADER;
 COPY countries FROM '/app/sql/data/countries.csv' DELIMITER ',' CSV HEADER;
-COPY month_calendar FROM '/app/sql/data/sample-month_calendar.csv' DELIMITER ',' CSV HEADER;
 COPY monthly_balance FROM '/app/sql/data/sample-monthly_balance.csv' DELIMITER ',' CSV HEADER;
 COPY monthly_lo FROM '/app/sql/data/sample-monthly_lo.csv' DELIMITER ',' CSV HEADER;
 COPY market_mapping FROM '/app/sql/data/sample-market_mapping.csv' DELIMITER ',' CSV HEADER;

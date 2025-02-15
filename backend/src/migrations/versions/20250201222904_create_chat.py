@@ -1,7 +1,7 @@
 """create chat
 
 Revision ID: 20250201222904
-Revises: 20250201092000
+Revises:
 Create Date: 2025-02-01 23:29:06.524019
 
 """
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = "20250201222904"
-down_revision = "20250201092000"
+down_revision = None
 branch_labels = None
 depends_on = None
 

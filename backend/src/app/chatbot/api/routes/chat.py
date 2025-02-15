@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Body, status, Depends
+from fastapi import APIRouter, Body, status, Depends, Request
 from fastapi_pagination import Page
 from fastapi_pagination.ext.sqlalchemy import paginate as sqla_paginate
 
@@ -29,6 +29,7 @@ async def get_chats(
     response_model=sch.ChatSch,
 )
 async def ask(
+    request: Request,
     obj_in: sch.ChatCreateRequestSch = Body(...),
     chat_repository: repository.ChatRepository = Depends(get_repository(repo_type=repository.ChatRepository)),
     chat_message_repository: repository.ChatMessageRepository = Depends(
@@ -39,8 +40,9 @@ async def ask(
     prompt = obj_in.question
     # TODO
     response = None
-    response = await chat_service.ask_2(prompt=prompt)
-    print(response)
+    response = await chat_service.ask_2(model=request.app.state.insight_model, prompt=prompt)
+    if response.startswith('"'):
+        response = response[1:-1]
     query_explanation = None
     obj_in = sch.ChatCreateSch(
         question=prompt,

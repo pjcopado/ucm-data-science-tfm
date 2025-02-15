@@ -48,6 +48,13 @@ class Settings(BaseSettings):
     IS_DB_EXPIRE_ON_COMMIT: bool = False
     IS_DB_FORCE_ROLLBACK: bool = False
 
+    # EXTERNAL DB SETTINGS
+    EXTERNAL_POSTGRES_USERNAME: str
+    EXTERNAL_POSTGRES_PASSWORD: str
+    EXTERNAL_POSTGRES_HOST: str
+    EXTERNAL_POSTGRES_PORT: int
+    EXTERNAL_POSTGRES_DB: str
+
     @property
     def set_backend_app_attributes(self) -> dict[str, str | bool | None]:
         """

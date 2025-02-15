@@ -5,15 +5,16 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
 from src.app.models import *
-from src.app.core.rate_limiter import limiter
 from src.app.core.config import settings
-from src.app.core.middlewares import register_middlewares
 from src.app.core.exception import BaseAPIError
+from src.app.core.lifespan import lifespan
+from src.app.core.middlewares import register_middlewares
+from src.app.core.rate_limiter import limiter
 from src.app.api import router
 
 
 def initialize_backend_application() -> FastAPI:
-    app = FastAPI(**settings.set_backend_app_attributes)
+    app = FastAPI(lifespan=lifespan, **settings.set_backend_app_attributes)
 
     register_middlewares(app)
     add_pagination(app)

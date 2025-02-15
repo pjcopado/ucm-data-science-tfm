@@ -6,7 +6,7 @@ from pydantic_ai import Agent
 from pydantic_ai.models.openai import OpenAIModel
 
 from src.app.chatbot import repository, schemas as sch
-from .ingisht import InsightGenerator
+from src.app.services.insight import InsightGenerator
 
 
 class ChatService:
@@ -38,12 +38,12 @@ class ChatService:
         result = await agent.run(prompt)
         return result.data
 
-    async def ask_2(self, prompt: str):
+    async def ask_2(self, model: InsightGenerator, prompt: str):
         prompt = "What were the sales in Germany in August 2021?"
         # TODO connect llm for actual response
         response = "1291206,76"
-        generator = InsightGenerator()
-        return generator.generate_response(prompt, response)
+        # generator = InsightGenerator()
+        return model.generate_response(prompt, response)
 
     async def create_message(self, obj_in: sch.ChatMessageCreateSch, chat_id: uuid.UUID) -> sch.ChatMessageSch:
         obj_db = await self.chat_repository.create(obj_in=obj_in, chat_id=chat_id)

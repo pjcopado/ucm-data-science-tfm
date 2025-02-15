@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Body, status, Depends
+from fastapi import APIRouter, Body, status, Depends, Request
 from fastapi_pagination import Page
 from fastapi_pagination.ext.sqlalchemy import paginate as sqla_paginate
 
@@ -31,6 +31,7 @@ async def get_messages(
     response_model=sch.ChatMessageSch,
 )
 async def create_message(
+    request: Request,
     chat: deps.Chat,
     obj_in: sch.ChatMessageCreateSch = Body(...),
     repository: repository.ChatMessageRepository = Depends(get_repository(repo_type=repository.ChatMessageRepository)),

@@ -37,6 +37,7 @@ from fastapi.responses import StreamingResponse
 # import ollama
 import asyncio
 import json
+import random
 
 
 async def long_text_json_stream():
@@ -54,8 +55,10 @@ async def long_text_json_stream():
     current_text = ""
     for word in chunks:
         current_text += word + " "
+        print(current_text)
         yield json.dumps({"content": current_text.strip()}) + "\n"
-        await asyncio.sleep(0.2)  # Simulate streaming delay
+        sleep_time = random.randint(1, 5) / 10
+        await asyncio.sleep(sleep_time)  # Simulate streaming delay
 
 
 @router.get("/stream_long_json")

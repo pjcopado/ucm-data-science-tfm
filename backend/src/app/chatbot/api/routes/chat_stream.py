@@ -38,6 +38,8 @@ from fastapi.responses import StreamingResponse
 import asyncio
 import json
 import random
+import logging
+import loguru
 
 
 async def long_text_json_stream():
@@ -55,8 +57,9 @@ async def long_text_json_stream():
     current_text = ""
     for word in chunks:
         current_text += word + " "
-        print(current_text)
-        yield json.dumps({"content": current_text.strip()}) + "\n"
+        # logging.info(current_text)
+        loguru.logger.info(current_text)
+        yield current_text.strip() + "\n"
         sleep_time = random.randint(1, 5) / 10
         await asyncio.sleep(sleep_time)  # Simulate streaming delay
 
@@ -64,7 +67,7 @@ async def long_text_json_stream():
 @router.get("/stream_long_json")
 async def stream_long_json():
     """Streams long text in JSON format."""
-    return StreamingResponse(long_text_json_stream(), media_type="application/json")
+    return StreamingResponse(long_text_json_stream(), media_type="text/plain")
 
 
 # agent = Agent("openai:gpt-4o")

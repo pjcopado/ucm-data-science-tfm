@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     RATE_LIMIT_ENABLED: bool = True
 
     IS_ALLOWED_CREDENTIALS: bool = True
-    ALLOWED_ORIGINS: list[str] = ["localhost", "127.0.0.1"]
+    ALLOWED_ORIGINS: list[str] = ["*"]
     ALLOWED_METHODS: list[str] = ["*"]
     ALLOWED_HEADERS: list[str] = ["*"]
 

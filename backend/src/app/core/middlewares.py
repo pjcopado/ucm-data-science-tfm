@@ -17,7 +17,11 @@ class ProcessTimeHeaderMiddleware(BaseHTTPMiddleware):
         start_time = time.time()
         response = await call_next(request)
         process_time = time.time() - start_time
-        response.headers["X-Process-Time"] = f"{1000 * process_time:.1f} ms"
+        time_unit = "s"
+        if process_time < 1:
+            process_time = 1000 * process_time
+            time_unit = "ms"
+        response.headers["X-Process-Time"] = f"{process_time:.1f} {time_unit}"
         return response
 
 

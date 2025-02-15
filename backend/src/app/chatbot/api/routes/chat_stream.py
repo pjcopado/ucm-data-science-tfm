@@ -159,7 +159,6 @@ async def stream_long_json():
 
 
 ########################################################################
-# application/x-ndjson
 
 
 async def event_stream():
@@ -187,6 +186,31 @@ async def event_stream():
 async def stream_long_json():
     """Streams long text in JSON format."""
     return StreamingResponse(event_stream(), media_type="text/event-stream")
+
+
+########################################################################
+
+
+async def event_stream_2():
+    """Simulates a long text response, streamed in JSON format."""
+
+    # Split text into chunks (simulating AI response generation)
+    chunks = LONG_TEXT.split(" ")
+
+    current_text = ""
+    for word in chunks:
+        current_text += word + " "
+        # logging.info(current_text)
+        loguru.logger.info(current_text)
+        yield json.dumps({"content": current_text.strip()}) + "\n"
+        sleep_time = random.randint(1, 5) / 10
+        await asyncio.sleep(sleep_time)  # Simulate streaming delay
+
+
+@router.get("/event_stream_2")
+async def stream_long_json():
+    """Streams long text in JSON format."""
+    return StreamingResponse(event_stream_2(), media_type="text/event-stream")
 
 
 # agent = Agent("openai:gpt-4o")

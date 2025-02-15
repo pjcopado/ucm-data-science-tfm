@@ -1,6 +1,5 @@
 import psycopg2
 
-
 class Postgres:
     def __init__(self, db_config):
         """

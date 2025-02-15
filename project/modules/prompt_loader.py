@@ -1,9 +1,12 @@
 import os
-import logging
+from modules.system_logger import Logger
+
+logger = Logger("Prompt Loader")
 
 
 class PromptLoader:
-    def __init__(self, prompt_dir="./prompts"):
+    def __init__(self,
+                 prompt_dir="./prompts"):
         """
         Inicializa el cargador de prompts.
         Args:
@@ -23,7 +26,7 @@ class PromptLoader:
         file_path = os.path.join(self.prompt_dir, file_name)
 
         # Print the file path for debugging
-        logging.info(f"Checking file path: {file_path}")
+        logger.info(f"Checking file path: {file_path}")
 
         if not os.path.exists(file_path):
             raise FileNotFoundError(
@@ -31,7 +34,7 @@ class PromptLoader:
             )
 
         # Load the file content (example)
-        with open(file_path, "r") as file:
+        with open(file_path, 'r') as file:
             content = file.read()
 
         return content

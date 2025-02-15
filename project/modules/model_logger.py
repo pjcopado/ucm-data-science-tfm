@@ -1,8 +1,6 @@
-import logging
-import json
 from modules.postgres import Postgres
 
-class Logger:
+class ModelLogger:
     def __init__(self):
         """
         Inicializa la clase Logger para manejar los logs de la aplicación y la evaluación.
@@ -19,13 +17,6 @@ class Logger:
             "user": "postgres",
             "password": "postgres"
         })
-
-        # Configurar logging para la aplicación
-        logging.basicConfig(
-            filename=self.app_log_file,
-            level=logging.INFO,
-            format="%(asctime)s - %(levelname)s - %(message)s"
-        )
 
 
 
@@ -57,25 +48,6 @@ class Logger:
         # Convierte la lista a formato pgvector
         return f"[{','.join(map(str, emb))}]"
 
-
-
-
-    def log_app_event(self, level, message):
-        """
-        Registra eventos generales de la aplicación en el archivo de logs de la aplicación.
-
-        Args:
-            level (str): Nivel de log (INFO, WARNING, ERROR).
-            message (str): Mensaje del evento.
-        """
-        if level.upper() == "INFO":
-            logging.info(message)
-        elif level.upper() == "WARNING":
-            logging.warning(message)
-        elif level.upper() == "ERROR":
-            logging.error(message)
-        else:
-            logging.debug(message)
 
 
 

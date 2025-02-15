@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import Optional
-from modules.sql_generator_v2 import SQLQueryGenerator
+from modules.sql_generator import SQLQueryGenerator
 
 app = FastAPI()
 

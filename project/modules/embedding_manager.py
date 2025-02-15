@@ -1,19 +1,23 @@
 import torch
 from sentence_transformers import SentenceTransformer, util
+from modules.system_logger import Logger
 
+logger = Logger("Embedder")
 
 class EmbeddingManager:
     def __init__(self, model_name="all-MiniLM-L12-v2", device="cpu"):
+
         if device:
-            self.device = device
+            self.device = device 
         else:
             self.device = "cuda" if torch.cuda.is_available() else "auto"
-
+        
         self.model = SentenceTransformer(model_name, device=self.device)
+    
 
     def embed_text(self, text):
         """
-        Genera el embedding de un texto (sea la pregunta o la query SQL)
+        Genera el embedding de un texto (sea la pregunta o la query SQL) 
         usando sentence-transformers.
         - Retorna un tensor en self.device.
         - Normaliza el embedding.
@@ -24,14 +28,20 @@ class EmbeddingManager:
             emb_dim = self.model.get_sentence_embedding_dimension()
             return torch.zeros(emb_dim, device=self.device)
 
-        embedding = self.model.encode(
-            text, convert_to_tensor=True, normalize_embeddings=True
-        )
+        embedding = self.model.encode(text, convert_to_tensor=True, normalize_embeddings=True)
         return embedding
 
+
+    
+    
+    
+    
+    
+    # -------------------------DEPRECATED----------------------------------------------
+    
     def similarity_search(self, query, query_logs, top_k=3, compare="user_input"):
         """
-        Devuelve las top_k interacciones más similares a 'query' según
+        Devuelve las top_k interacciones más similares a 'query' según 
         la similitud de embeddings.
 
         compare: "user_input" o "query"
@@ -57,7 +67,7 @@ class EmbeddingManager:
 
         corpus_tensor = torch.cat(corpus_embeddings, dim=0)  # shape (N, dim)
 
-        scores = util.dot_score(new_emb, corpus_tensor)[0]  # dot_score => shape(1, N)
+        scores = util.dot_score(new_emb, corpus_tensor)[0]   # dot_score => shape(1, N)
         top_scores, top_indices = torch.topk(scores, k=min(top_k, len(scores)))
 
         results = []

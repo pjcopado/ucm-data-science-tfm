@@ -2,7 +2,9 @@ import subprocess
 import threading
 import queue
 import time
+from modules.system_logger import Logger
 
+logger = Logger("LLM Handler")
 
 class LLMHandler:
     def __init__(
@@ -13,10 +15,11 @@ class LLMHandler:
         n_gpu_layers=16,
         temperature=0,
         top_p=0.95,
-        prompt_cache="./data/prompt_cahe.bin",
+        prompt_cache="./data/prompt_cahe.bin"
     ):
+        
         self.model_path = f"./models/gguf/{model_name}.gguf"
-
+            
         cmd = [
             "llama-cli",
             "--model", str(self.model_path),
@@ -31,12 +34,11 @@ class LLMHandler:
             "-no-cnv",
             "--keep", "-1",
             "-p", str(system_prompt),
-            "--in-prefix", ">>>",
             "--in-suffix", "<|start_header_id|>assistant<|end_header_id|>\n\n",
             "-sp"
         ]
 
-        print("[LLMHandler] Starting model:", " ".join(cmd))
+        logger.info(f"Starting model: {" ".join(cmd)}")
 
         # Arrancamos llama.cpp como un subproceso con pipes para stdin y stdout
         self.process = subprocess.Popen(
@@ -45,7 +47,7 @@ class LLMHandler:
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             universal_newlines=True,
-            bufsize=1,
+            bufsize=1
         )
 
         # Cola para almacenar líneas de la salida
@@ -61,6 +63,7 @@ class LLMHandler:
 
         self._consume_until_model_ready(timeout=900)
 
+
     def _consume_until_model_ready(self, timeout=900):
         t0 = time.time()
         while True:
@@ -68,22 +71,22 @@ class LLMHandler:
                 line = self.stdout_queue.get(timeout=1)
             except queue.Empty:
                 if (time.time() - t0) > timeout:
-                    print(
-                        "[WARN][LLMHandler][llama.cpp >] Timeout waiting for 'user' turn."
-                    )
+                    logger.warn("[llama.cpp >] Timeout waiting for 'user' turn.")
                     break
                 continue
 
-            print("[LLMHandler][llama.cpp >]", line, end="")
+            logger.debug(f"[llama.cpp >] {line.strip()}")
 
             if line.strip() == "== Running in interactive mode. ==":
                 break
 
             if "error:" in line:
-                print("[ERROR][LLMHandler][llama.cpp >] Error:", line)
+                logger.error(f"[llama.cpp >] Error: {line}")
                 break
 
         time.sleep(15)
+
+
 
     def _consume_until_reverse_prompt(self, timeout=900):
         t0 = time.time()
@@ -94,48 +97,54 @@ class LLMHandler:
                 line = self.stdout_queue.get(timeout=1)
             except queue.Empty:
                 if (time.time() - t0) > timeout:
-                    print(
-                        "[WARN][LLMHandler][llama.cpp >] Timeout waiting for 'user' turn."
-                    )
+                    logger.warn("[llama.cpp >] Timeout waiting for 'user' turn.")
                     break
                 continue
 
-            print("[LLMHandler][llama.cpp >]", line, end="")
+            logger.debug(f"[llama.cpp >] {line.strip()}")
 
             if line.strip() == "<|start_header_id|>assistant<|end_header_id|>":
-                capturing = True
+                capturing = True 
                 continue
-
-            if capturing and "<|eot_id|>" in line:
-                break
 
             if capturing:
                 captured.append(line)
 
+            if capturing and "<|eot_id|>" in line:
+                break
+
             if "error:" in line:
-                print("[ERROR][LLMHandler][llama.cpp >] Error:", line)
+                logger.error(f"[llama.cpp >] Error: {line}")
                 break
 
         return "".join(captured).replace("<|eot_id|>", "").strip()
 
-    def generate(self, prompt) -> str:
+
+
+    def generate(
+        self,
+        prompt
+    ) -> str:
+
         prompt = str(prompt)
 
         if self.process.poll() is not None:
-            raise RuntimeError("[LLMHandler] llama.cpp process failed.")
+            logger.error("llama.cpp process failed.")
+            raise RuntimeError("[LLM Handler] llama.cpp process failed.")
 
-        print("[LLMHandler] Sending prompt: ", prompt)
+        logger.info(f"Sending prompt: {prompt}")
 
         # Mandamos el prompt al stdin
         send_prompt = prompt + "\n\\\n"
-        print(send_prompt)
         self.process.stdin.write(send_prompt)
         self.process.stdin.flush()
 
         output = self._consume_until_reverse_prompt(timeout=120)
 
         # Opcional: podrías limpiar la repetición del prompt o hacer un parse más avanzado
-        return output.strip()
+        return output
+
+
 
     def close(self):
         """
@@ -144,4 +153,4 @@ class LLMHandler:
         if self.process and self.process.poll() is None:
             self.process.terminate()
             self.process.wait()
-            print("[LLMHandler] llama.cpp process finished")
+            logger.info("llama.cpp process finished")

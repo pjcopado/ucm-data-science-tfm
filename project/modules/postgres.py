@@ -1,5 +1,5 @@
 import psycopg2
-from datetime import datetime
+
 
 class Postgres:
     def __init__(self, db_config):
@@ -47,7 +47,7 @@ class Postgres:
             raise RuntimeError(f"Error al obtener el esquema de la base de datos: {e}")
 
         return schema
-    
+
     def get_db_schema_dtype(self):
         """
         Recupera el esquema de la base de datos y lo transforma en un diccionario.
@@ -86,8 +86,26 @@ class Postgres:
         schema_details = []
         relationships = []
 
-        # Query para obtener el esquema de las tablas
+        # Query para obtener el esquema de las tablas incluyendo descripciones
         schema_query = """
+        SELECT
+            c.table_schema,
+            c.table_name,
+            c.column_name,
+            c.data_type,
+            pgd.description
+        FROM pg_catalog.pg_statio_all_tables as st
+        LEFT JOIN pg_catalog.pg_description pgd on (
+            pgd.objoid = st.relid
+        )
+        RIGHT JOIN information_schema.columns c on (
+            pgd.objsubid   = c.ordinal_position and
+            c.table_schema = st.schemaname and
+            c.table_name   = st.relname
+        )
+        WHERE c.table_schema = 'public'
+        ORDER BY c.table_name, c.ordinal_position;
+
         SELECT table_name, column_name, data_type
         FROM information_schema.columns
         WHERE table_schema = 'public'
@@ -126,8 +144,10 @@ class Postgres:
                     table_columns = {}
 
                     # Agrupar columnas por tabla
-                    for table_name, column_name, data_type in cur.fetchall():
-                        table_columns.setdefault(table_name, []).append((column_name, data_type))
+                    for table_name, column_name, data_type, description in cur.fetchall():
+                        table_columns.setdefault(table_name, []).append(
+                            (column_name, data_type, description)
+                        )
 
                     # Obtener ejemplos de datos por tabla y generar detalles del esquema
                     schema_details = []
@@ -137,17 +157,27 @@ class Postgres:
                         cur.execute(f"SELECT {column_names} FROM {table_name} LIMIT 1;")
                         result = cur.fetchone()
 
-                        for i, (column_name, data_type) in enumerate(columns):
+                        for i, (column_name, data_type, description) in enumerate(columns):
                             example = f", example '{result[i]}'" if result else ""
-                            schema_details.append(f"  - {column_name}: {data_type}{example}")
+                            schema_details.append(
+                                f"  - {column_name}: {data_type}{example} - Column description: {description}"
+                            )
 
                     # Obtener relaciones entre tablas
                     cur.execute(relationships_query)
                     fk_results = cur.fetchall()
 
                     if fk_results:
-                        relationships.append("Relationships between tables (Foreign Keys):")
-                        for fk_name, source_table, source_column, target_table, target_column in fk_results:
+                        relationships.append(
+                            "Relationships between tables (Foreign Keys):"
+                        )
+                        for (
+                            fk_name,
+                            source_table,
+                            source_column,
+                            target_table,
+                            target_column,
+                        ) in fk_results:
                             relationships.append(
                                 f"  - {fk_name}: {source_table}({source_column}) -> {target_table}({target_column})"
                             )
@@ -162,9 +192,16 @@ class Postgres:
             report = "\n".join(schema_details)
         return report
 
-
-
-    def insert_log(self, query_input, generated_query, user_input_embedding, generated_query_embedding, is_correct, error_message, execution_time):
+    def insert_log(
+        self,
+        query_input,
+        generated_query,
+        user_input_embedding,
+        generated_query_embedding,
+        is_correct,
+        error_message,
+        execution_time,
+    ):
         query = """
             INSERT INTO logs (user_input, user_input_embedding, query, query_embedding, is_correct, error_message, execution_time, created_at)
             VALUES (%s, %s, %s, %s, %s, %s, %s, NOW())
@@ -180,16 +217,22 @@ class Postgres:
                         generated_query_embedding,
                         is_correct,
                         error_message,
-                        execution_time
+                        execution_time,
                     )
                     cur.execute(query, data)
 
         except Exception as e:
             raise RuntimeError(f"Error writing evaluation logs: {e}")
 
-
-
-    def dot_score(self, embedding, top_k=3, column="user_input_embedding", is_correct=None, threshold_similarity=None, threshold_freq=0.0):
+    def dot_score(
+        self,
+        embedding,
+        top_k=3,
+        column="user_input_embedding",
+        is_correct=None,
+        threshold_similarity=None,
+        threshold_freq=0.0,
+    ):
         """
         Returns a list of rows ordered by similarity (dot product).
 
@@ -223,7 +266,7 @@ class Postgres:
             "threshold_similarity": threshold_similarity,
             "threshold_freq": threshold_freq,
             "top_k": top_k,
-            "is_correct": is_correct
+            "is_correct": is_correct,
         }
 
         sub_select = f"""
@@ -237,7 +280,11 @@ class Postgres:
             FROM logs
         """
 
-        where_clause = ("similarity > %(threshold_similarity)s AND is_correct = %(is_correct)s" if is_correct is not None else "similarity > %(threshold_similarity)s")
+        where_clause = (
+            "similarity > %(threshold_similarity)s AND is_correct = %(is_correct)s"
+            if is_correct is not None
+            else "similarity > %(threshold_similarity)s"
+        )
 
         final_query = f"""
             SELECT
@@ -258,8 +305,6 @@ class Postgres:
             LIMIT %(top_k)s
         """
 
-
-
         results = []
         try:
             with psycopg2.connect(**self.db_config) as conn:
@@ -267,13 +312,13 @@ class Postgres:
                     cur.execute(final_query, params)
                     rows = cur.fetchall()
                     for row in rows:
-                        row_id         = row[0]
+                        row_id = row[0]
                         row_user_input = row[1]
-                        row_query      = row[2]
+                        row_query = row[2]
                         row_is_correct = row[3]
-                        row_embedding  = row[4]
+                        row_embedding = row[4]
                         row_similarity = row[5]
-                        row_freq       = row[6]
+                        row_freq = row[6]
 
                         # Creamos el diccionario:
                         entry_dict = {
@@ -290,5 +335,3 @@ class Postgres:
             raise RuntimeError(f"Error in dot_score: {e}")
 
         return results
-
-

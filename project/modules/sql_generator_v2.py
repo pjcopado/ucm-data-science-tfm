@@ -1,38 +1,34 @@
 import time
-import re
 from modules.postgres import Postgres
 from modules.template import PromptTemplate
 from modules.query_manager import QueryManager
 from modules.embedding_manager import EmbeddingManager
-from TFM.project.modules.model_logger import Logger
+from project.modules.model_logger import Logger
 from modules.llm_handler import LLMHandler
 
+
 class SQLQueryGenerator:
-    def __init__(
-            self,
-            model_name,
-            db_config,
-            max_attempts=3):
+    def __init__(self, model_name, db_config, max_attempts=3):
         """
         Inicializa la clase SQLQueryGenerator.
 
         Args:
-            model: Modelo de generación de texto (Hugging Face).
-            tokenizer: Tokenizador del modelo.
+            model_name: Nombre del modelo.
             db_config (dict): Esquema conexión de la base de datos.
-            prompt_loader (PromptLoader, opcional): Loader para cargar prompts. Si no se proporciona, se debe instanciar manualmente.
             max_attempts (int): Número máximo de intentos para corregir errores.
         """
-        
+
         # Instanciar Postgres y cargar el esquema
         self.postgres = Postgres(db_config)
         try:
             print("Fetching table definitions from the database...")
             self.db_schema = self.postgres.get_db_schema()
-            self.db_schema_and_relationships = self.postgres.get_db_schema_and_relationships()
+            self.db_schema_and_relationships = (
+                self.postgres.get_db_schema_and_relationships()
+            )
         except Exception as e:
             raise RuntimeError(f"Error al cargar el esquema de la base de datos: {e}")
-        
+
         # Instanciar otros modulos
         self.prompt_template = PromptTemplate(model_name)
         self.query_manager = QueryManager(self.db_schema)
@@ -49,20 +45,24 @@ class SQLQueryGenerator:
         self.user_error_prompt_file = "user_error_prompt.txt"
 
         # Cargar el modelo
-        system_prompt = str(self.prompt_template.generate_prompt("system", self.system_prompt_file, user_input="", user_instructions="", db_schema=self.db_schema_and_relationships))
+        system_prompt = str(
+            self.prompt_template.generate_prompt(
+                "system",
+                self.system_prompt_file,
+                user_input="",
+                user_instructions="",
+                db_schema=self.db_schema_and_relationships,
+            )
+        )
         self.llm = LLMHandler(model_name, system_prompt)
-
-
 
     def generate_sql_query(self, user_input, user_instructions=None, db_schema=None):
         """
         Genera una consulta SQL y realiza correcciones automáticas en caso de error.
         Args:
-            prompt_file (str): nombre del archivo plantilla del prompt.
-            retry_prompt_file (str): nombre del archivo plantilla del prompt de reintento si error.
             user_input (str): Pregunta del usuario.
-            instructions (str): Instrucciones adicionales.
-            database_schema (str): Definiciones de tablas.
+            user_instructions (str): Instrucciones adicionales del usuario.
+            db_schema (str): Esquema de la base de datos.
         Returns:
             str: Consulta SQL final generada (o None si falla).
         """
@@ -76,15 +76,46 @@ class SQLQueryGenerator:
         while attempts < self.max_attempts:
             if not errors:
                 user_input_embedding = self.embedder.embed_text(user_input)
-                similarity_list = self.logger.log_similarity_search(user_input_embedding, top_k=3, compare="user_input", status="OK", threshold=0.90)
+                similarity_list = self.logger.log_similarity_search(
+                    user_input_embedding,
+                    top_k=3,
+                    compare="user_input",
+                    status="OK",
+                    threshold=0.90,
+                )
                 print(similarity_list)
-                prompt = self.prompt_template.generate_prompt("user", self.user_prompt_file, user_input, user_instructions, db_schema, similarity_list=similarity_list)
+                prompt = self.prompt_template.generate_prompt(
+                    "user",
+                    self.user_prompt_file,
+                    user_input,
+                    user_instructions,
+                    db_schema,
+                    similarity_list=similarity_list,
+                )
 
             elif errors and attempts == 1:
-                prompt = self.prompt_template.generate_prompt_combined("system", self.system_error_prompt_file, "user", self.user_error_prompt_file, user_input, user_instructions, db_schema, error_list=errors, initial_query=initial_query)
+                prompt = self.prompt_template.generate_prompt_combined(
+                    "system",
+                    self.system_error_prompt_file,
+                    "user",
+                    self.user_error_prompt_file,
+                    user_input,
+                    user_instructions,
+                    db_schema,
+                    error_list=errors,
+                    initial_query=initial_query,
+                )
 
             else:
-                prompt = self.prompt_template.generate_prompt("user", self.user_error_prompt_file, user_input, user_instructions, db_schema, error_list=errors, initial_query=initial_query)
+                prompt = self.prompt_template.generate_prompt(
+                    "user",
+                    self.user_error_prompt_file,
+                    user_input,
+                    user_instructions,
+                    db_schema,
+                    error_list=errors,
+                    initial_query=initial_query,
+                )
 
             # Execute Model
             start_time = time.time()
@@ -92,15 +123,15 @@ class SQLQueryGenerator:
             query_text = self.llm.generate(prompt)
 
             print(query_text)
-            
-            #pattern = r"<\|start_header_id\|>assistant<\|end_header_id\|>\s*(.*?)\s*<\|eot_id\|>"
-            #match = re.search(pattern, query_text, re.DOTALL)
-            #query = match.group(1).strip()
-            
+
+            # pattern = r"<\|start_header_id\|>assistant<\|end_header_id\|>\s*(.*?)\s*<\|eot_id\|>"
+            # match = re.search(pattern, query_text, re.DOTALL)
+            # query = match.group(1).strip()
+
             end_time = time.time()
             execution_time = end_time - start_time
 
-            query=query_text
+            query = query_text
             return query
 
             validation_results = self.query_manager.validate_sql_query(query)
@@ -108,20 +139,36 @@ class SQLQueryGenerator:
             if validation_results["status"] == "OK":
                 user_input_embedding = self.embedder.embed_text(user_input)
                 query_embedding = self.embedder.embed_text(query)
-                confidence_score = self.logger.log_get_confidence_score(query_embedding, compare="query", threshold=0.85)
+                confidence_score = self.logger.log_get_confidence_score(
+                    query_embedding, compare="query", threshold=0.85
+                )
 
-                self.logger.log_evaluation(user_input, user_input_embedding, query, query_embedding, validation_results, execution_time)
+                self.logger.log_evaluation(
+                    user_input,
+                    user_input_embedding,
+                    query,
+                    query_embedding,
+                    validation_results,
+                    execution_time,
+                )
 
                 print("Consulta válida generada.")
                 return query, confidence_score
-            
+
             elif validation_results["status"] == "KO":
                 initial_query = query
                 errors.append(validation_results["message"])
                 user_input_embedding = self.embedder.embed_text(user_input)
                 query_embedding = self.embedder.embed_text(query)
 
-                self.logger.log_evaluation(user_input, user_input_embedding, query, query_embedding, validation_results, execution_time)
+                self.logger.log_evaluation(
+                    user_input,
+                    user_input_embedding,
+                    query,
+                    query_embedding,
+                    validation_results,
+                    execution_time,
+                )
                 print(f"Error detectado: {validation_results['message']}")
 
             attempts += 1

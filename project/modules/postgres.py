@@ -154,7 +154,8 @@ class Postgres:
                         for i, (column_name, data_type, description) in enumerate(columns):
                             example = f", example '{result[i]}'" if result else ""
                             schema_details.append(
-                                f"  - {column_name}: {data_type}{example} - Column description: {description}"
+                                f"  - {column_name}: {data_type}{example}" + (f" - Column description: {description}" if description else "")
+
                             )
 
                     # Obtener relaciones entre tablas
@@ -162,19 +163,15 @@ class Postgres:
                     fk_results = cur.fetchall()
 
                     if fk_results:
-                        relationships.append(
-                            "Relationships between tables (Foreign Keys):"
-                        )
-                        for (
-                            fk_name,
-                            source_table,
-                            source_column,
-                            target_table,
-                            target_column,
-                        ) in fk_results:
-                            relationships.append(
-                                f"  - {fk_name}: {source_table}({source_column}) -> {target_table}({target_column})"
-                            )
+                        relationships.append("Relationships between tables (Foreign Keys):")
+
+                        seen_relationships = set()  # Conjunto para evitar duplicados
+                        for fk_name, source_table, source_column, target_table, target_column in fk_results:
+                            relationship_str = f"  - {fk_name}: {source_table}({source_column}) -> {target_table}({target_column})"
+
+                            if relationship_str not in seen_relationships:
+                                relationships.append(relationship_str)
+                                seen_relationships.add(relationship_str)  # Agregar al conjunto para evitar duplicados
 
         except Exception as e:
             raise RuntimeError(f"Error al obtener el esquema y las relaciones: {e}")

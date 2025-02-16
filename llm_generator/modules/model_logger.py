@@ -14,11 +14,11 @@ class ModelLogger:
         """
         self.evaluation_log = Postgres(
             {
-                "host": os.getenv["LLM_POSTGRES_HOST"],
-                "port": os.getenv["LLM_POSTGRES_PORT"],
-                "database": os.getenv["LLM_POSTGRES_DB"],
-                "user": os.getenv["LLM_POSTGRES_USERNAME"],
-                "password": os.getenv["LLM_POSTGRES_PASSWORD"],
+                "host": os.getenv("LLM_POSTGRES_HOST"),
+                "port": os.getenv("LLM_POSTGRES_PORT"),
+                "database": os.getenv("LLM_POSTGRES_DB"),
+                "user": os.getenv("LLM_POSTGRES_USERNAME"),
+                "password": os.getenv("LLM_POSTGRES_PASSWORD"),
             }
         )
 

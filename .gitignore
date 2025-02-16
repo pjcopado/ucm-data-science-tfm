@@ -166,3 +166,10 @@ cython_debug/
 
 # Workspaces
 *.code-workspace
+
+# Databricks
+.databricks/
+databricks.yml
+
+# VS Code
+.vscode/

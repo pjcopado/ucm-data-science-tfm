@@ -1,0 +1,44 @@
+# Usa la imagen oficial de Postgres 16
+FROM postgres:16
+
+# Cambiamos temporalmente a root para instalar dependencias
+USER root
+
+# Instala paquetes necesarios para compilar pgvector
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+      build-essential \
+      postgresql-server-dev-16 \
+      wget \
+      ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
+
+# Descarga y descomprime el código fuente de pgvector
+RUN wget https://github.com/pgvector/pgvector/archive/refs/tags/v0.8.0.tar.gz && \
+    tar xzf v0.8.0.tar.gz && \
+    rm v0.8.0.tar.gz
+
+# Compila e instala pgvector
+WORKDIR /pgvector-0.8.0
+RUN make && make install
+
+# Limpieza opcional
+WORKDIR /
+RUN rm -rf /pgvector-0.8.0
+
+# Copia init.sql al directorio de inicialización para que se ejecute automáticamente
+COPY init.sql /docker-entrypoint-initdb.d/init.sql
+
+# Copia los demás archivos SQL y CSV a otro directorio dentro del contenedor
+RUN mkdir -p /app/sql
+COPY init.sql /app/sql/init.sql
+COPY logs.sql /app/sql/logs.sql
+
+# Asegúrate de que los archivos sean accesibles
+RUN chmod 644 /docker-entrypoint-initdb.d/init.sql /app/sql/*.sql
+
+# Configura el puerto por defecto para Postgres (puedes cambiarlo si 5432 está en uso)
+ENV PGPORT=5433
+
+# Retorna al usuario por defecto "postgres" que usa la imagen oficial
+USER postgres

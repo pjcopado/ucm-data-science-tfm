@@ -1,0 +1,4 @@
+{{user_input}}
+{{user_instructions}}
+
+{{historic_query}}

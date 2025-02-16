@@ -77,3 +77,4 @@ uv sync
 ## Usage
 
 1- Start application
+

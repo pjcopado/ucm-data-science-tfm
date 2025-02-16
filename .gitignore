@@ -2,7 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
-
+.pytest_cache
 # C extensions
 *.so
 
@@ -163,3 +163,20 @@ cython_debug/
 
 # volunes
 pgadmin/
+
+# Models
+*/models/*
+
+# Workspaces
+*.code-workspace
+
+# Databricks
+.databricks/
+databricks.yml
+
+# VS Code
+.vscode/
+
+#Other
+db_profile.json
+

@@ -1,0 +1,38 @@
+# Usa la imagen oficial de Postgres 16
+FROM postgres:16
+
+# Cambiamos temporalmente a root para instalar dependencias
+USER root
+
+# Instala paquetes necesarios para compilar pgvector
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+      build-essential \
+      postgresql-server-dev-16 \
+      wget \
+      ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
+
+# Copia init.sql al directorio de inicialización para que se ejecute automáticamente
+COPY init.sql /docker-entrypoint-initdb.d/init.sql
+
+# Copia los demás archivos SQL y CSV a otro directorio dentro del contenedor
+RUN mkdir -p /app/sql /app/data
+COPY init.sql /app/sql/init.sql
+COPY sandoz.sql /app/sql/sandoz.sql
+
+#  Copia los archivos CSV de datos de muestra
+COPY data/continents.csv /app/sql/data/continents.csv
+COPY data/countries.csv /app/sql/data/countries.csv
+COPY data/sample-monthly_balance.csv /app/sql/data/sample-monthly_balance.csv
+COPY data/sample-monthly_lo.csv /app/sql/data/sample-monthly_lo.csv
+COPY data/sample-market_mapping.csv /app/sql/data/sample-market_mapping.csv
+
+# Asegúrate de que los archivos sean accesibles
+RUN chmod 644 /docker-entrypoint-initdb.d/init.sql /app/sql/*.sql /app/sql/data/*.csv
+
+# Configura el puerto por defecto para Postgres (puedes cambiarlo si 5432 está en uso)
+ENV PGPORT=5433
+
+# Retorna al usuario por defecto "postgres" que usa la imagen oficial
+USER postgres

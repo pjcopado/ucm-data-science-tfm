@@ -1,31 +1,31 @@
 name: chatbot
 
 services:
-  web:
-    container_name: chatbot-app
-    platform: linux/x86_64
-    build:
-      context: ./backend
-    ports:
-      - 8000:8000
-      - 5678:5678
-    volumes:
-      - .:/code
-    env_file:
-      - backend/.env.docker
-    depends_on:
-      - postgres
+  # web:
+  #   container_name: chatbot-app
+  #   platform: linux/x86_64
+  #   build:
+  #     context: ./backend
+  #   ports:
+  #     - 8000:8000
+  #     - 5678:5678
+  #   volumes:
+  #     - .:/code
+  #   env_file:
+  #     - backend/.env.docker
+  #   depends_on:
+  #     - postgres
 
-  postgres:
-    container_name: chatbot-postgresql
-    image: postgres:15.4
-    volumes:
-      - postgres-local:/var/lib/postgresql/data
-    ports:
-      - 5433:5433
-    command: -p 5433
-    env_file:
-      - backend/.env.docker
+  # postgres:
+  #   container_name: chatbot-postgresql
+  #   image: postgres:15.4
+  #   volumes:
+  #     - postgres-local:/var/lib/postgresql/data
+  #   ports:
+  #     - 5433:5433
+  #   command: -p 5433
+  #   env_file:
+  #     - backend/.env.docker
 
   pgadmin:
     container_name: chatbot-pgadmin
@@ -35,13 +35,26 @@ services:
       - 5050:80
     volumes:
       - pgadmin-local:/var/lib/pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=chatbot@gmail.com
+      - PGADMIN_DEFAULT_PASSWORD=123456
+
+  postgres-external:
+    container_name: chatbot-postgresql-external
+    build:
+      context: ./db_sandoz
+    volumes:
+      - postgres-external:/var/lib/postgresql/data
+    ports:
+      - 5435:5435
+    command: -p 5435
     env_file:
-      - backend/.env.docker
-    depends_on:
-      - postgres
+      - db_sandoz/.env.docker
 
 volumes:
   postgres-local:
     external: true
   pgadmin-local:
+    external: true
+  postgres-external:
     external: true

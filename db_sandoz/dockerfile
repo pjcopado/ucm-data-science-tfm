@@ -7,10 +7,10 @@ USER root
 # Instala paquetes necesarios para compilar pgvector
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-      build-essential \
-      postgresql-server-dev-16 \
-      wget \
-      ca-certificates && \
+    build-essential \
+    postgresql-server-dev-16 \
+    wget \
+    ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
 # Copia init.sql al directorio de inicialización para que se ejecute automáticamente
@@ -31,8 +31,8 @@ COPY data/sample-market_mapping.csv /app/sql/data/sample-market_mapping.csv
 # Asegúrate de que los archivos sean accesibles
 RUN chmod 644 /docker-entrypoint-initdb.d/init.sql /app/sql/*.sql /app/sql/data/*.csv
 
-# Configura el puerto por defecto para Postgres (puedes cambiarlo si 5432 está en uso)
-ENV PGPORT=5433
+# # Configura el puerto por defecto para Postgres (puedes cambiarlo si 5432 está en uso)
+# ENV PGPORT=5433
 
-# Retorna al usuario por defecto "postgres" que usa la imagen oficial
+# # Retorna al usuario por defecto "postgres" que usa la imagen oficial
 USER postgres

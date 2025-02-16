@@ -1,4 +1,0 @@
-The user question: {{user_input}}
-The result obtained: {{query_result}}
-
-The query generated: {{query_generated}}

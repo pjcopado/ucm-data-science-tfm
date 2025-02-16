@@ -1,5 +1,6 @@
 import psycopg2
 
+
 class Postgres:
     def __init__(self, db_config):
         """
@@ -138,7 +139,13 @@ class Postgres:
                     table_columns = {}
 
                     # Agrupar columnas por tabla
-                    for table_schema, table_name, column_name, data_type, description in cur.fetchall():
+                    for (
+                        table_schema,
+                        table_name,
+                        column_name,
+                        data_type,
+                        description,
+                    ) in cur.fetchall():
                         table_columns.setdefault(table_name, []).append(
                             (column_name, data_type, description)
                         )
@@ -151,11 +158,17 @@ class Postgres:
                         cur.execute(f"SELECT {column_names} FROM {table_name} LIMIT 1;")
                         result = cur.fetchone()
 
-                        for i, (column_name, data_type, description) in enumerate(columns):
+                        for i, (column_name, data_type, description) in enumerate(
+                            columns
+                        ):
                             example = f", example '{result[i]}'" if result else ""
                             schema_details.append(
-                                f"  - {column_name}: {data_type}{example}" + (f" - Column description: {description}" if description else "")
-
+                                f"  - {column_name}: {data_type}{example}"
+                                + (
+                                    f" - Column description: {description}"
+                                    if description
+                                    else ""
+                                )
                             )
 
                     # Obtener relaciones entre tablas
@@ -163,15 +176,25 @@ class Postgres:
                     fk_results = cur.fetchall()
 
                     if fk_results:
-                        relationships.append("Relationships between tables (Foreign Keys):")
+                        relationships.append(
+                            "Relationships between tables (Foreign Keys):"
+                        )
 
                         seen_relationships = set()  # Conjunto para evitar duplicados
-                        for fk_name, source_table, source_column, target_table, target_column in fk_results:
+                        for (
+                            fk_name,
+                            source_table,
+                            source_column,
+                            target_table,
+                            target_column,
+                        ) in fk_results:
                             relationship_str = f"  - {fk_name}: {source_table}({source_column}) -> {target_table}({target_column})"
 
                             if relationship_str not in seen_relationships:
                                 relationships.append(relationship_str)
-                                seen_relationships.add(relationship_str)  # Agregar al conjunto para evitar duplicados
+                                seen_relationships.add(
+                                    relationship_str
+                                )  # Agregar al conjunto para evitar duplicados
 
         except Exception as e:
             raise RuntimeError(f"Error al obtener el esquema y las relaciones: {e}")
@@ -185,26 +208,28 @@ class Postgres:
 
     def insert_log(
         self,
-        query_input,
-        generated_query,
+        uuid,
+        user_input,
         user_input_embedding,
+        generated_query,
         generated_query_embedding,
         is_correct,
         error_message,
         execution_time,
     ):
         query = """
-            INSERT INTO logs (user_input, user_input_embedding, query, query_embedding, is_correct, error_message, execution_time, created_at)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, NOW())
+            INSERT INTO logs (uuid, user_input, user_input_embedding, query, query_embedding, is_correct, error_message, execution_time, created_at)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, NOW())
         """
 
         try:
             with psycopg2.connect(**self.db_config) as conn:
                 with conn.cursor() as cur:
                     data = (
-                        query_input,
-                        generated_query,
+                        uuid,
+                        user_input,
                         user_input_embedding,
+                        generated_query,
                         generated_query_embedding,
                         is_correct,
                         error_message,
@@ -214,6 +239,25 @@ class Postgres:
 
         except Exception as e:
             raise RuntimeError(f"Error writing evaluation logs: {e}")
+
+    def update_is_correct(self, uuid, is_correct):
+        """
+        Actualiza el campo is_correct basado en el uuid.
+        Args:
+            uuid (str): El UUID del registro a actualizar.
+            is_correct (bool): El nuevo valor para el campo is_correct.
+        """
+        query = """
+            UPDATE logs
+            SET is_correct = %s
+            WHERE uuid = %s
+        """
+        try:
+            with psycopg2.connect(**self.db_config) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query, (is_correct, uuid))
+        except Exception as e:
+            raise RuntimeError(f"Error updating is_correct: {e}")
 
     def dot_score(
         self,

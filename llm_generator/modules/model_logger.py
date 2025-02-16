@@ -55,7 +55,6 @@ class ModelLogger:
         user_input_embedding,
         query,
         query_embedding,
-        validation_results,
         execution_time,
     ):
         """
@@ -63,11 +62,7 @@ class ModelLogger:
         """
         user_input_embedding = self._to_vector_format(user_input_embedding)
         query_embedding = self._to_vector_format(query_embedding)
-
-        if validation_results["status"] == "OK":
-            is_correct = True
-        elif validation_results["status"] == "KO":
-            is_correct = False
+        is_correct = None
 
         self.evaluation_log.insert_log(
             uuid,
@@ -76,7 +71,6 @@ class ModelLogger:
             query,
             query_embedding,
             is_correct,
-            validation_results["message"],
             execution_time,
         )
 

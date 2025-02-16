@@ -214,12 +214,11 @@ class Postgres:
         generated_query,
         generated_query_embedding,
         is_correct,
-        error_message,
         execution_time,
     ):
         query = """
-            INSERT INTO logs (uuid, user_input, user_input_embedding, query, query_embedding, is_correct, error_message, execution_time, created_at)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, NOW())
+            INSERT INTO logs (uuid, user_input, user_input_embedding, query, query_embedding, is_correct, execution_time, created_at)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, NOW())
         """
 
         try:
@@ -232,7 +231,6 @@ class Postgres:
                         generated_query,
                         generated_query_embedding,
                         is_correct,
-                        error_message,
                         execution_time,
                     )
                     cur.execute(query, data)

@@ -14,7 +14,6 @@ CREATE TABLE logs (
     query TEXT NOT NULL,                                  -- Query generada por el LLM
     query_embedding vector(384),                          -- Embedding de la query generada
     is_correct BOOLEAN,                                   -- Si la query es correcta o no
-    error_message TEXT,
     execution_time FLOAT,                                 -- Tiempo de ejecución en milisegundos
     created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW()  -- Fecha y hora de creación del log
 );

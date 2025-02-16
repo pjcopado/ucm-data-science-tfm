@@ -152,13 +152,12 @@ class SQLQueryGenerator:
                         user_input_embedding,
                         query,
                         query_embedding,
-                        validation_results,
                         execution_time,
                     )
 
                     status = "insight_completed"
 
-                    logger.info(f"uui: {uuid}")
+                    logger.info(f"uuid: {uuid}")
                     logger.info(f"query: {query}")
                     logger.info(f"confidence_score: {confidence_score}")
                     logger.info(f"status: {status}")
@@ -175,7 +174,6 @@ class SQLQueryGenerator:
                 elif validation_results["status"] == "KO":
                     initial_query = query
                     errors.append(validation_results["message"])
-                    logger.warn(f"Error detectado: {validation_results['message']}")
 
                 attempts += 1
                 logger.info(f"Retrying... ({attempts}/{self.max_attempts})")
@@ -189,7 +187,7 @@ class SQLQueryGenerator:
                 "status": status,
             }
             logger.warn(
-                f"No se pudo generar una consulta válida tras múltiples intentos. Status: {status}"
+                f"Could not generate a valid query after multiple attempts. Status: {status}"
             )
             return response
 

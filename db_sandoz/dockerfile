@@ -13,19 +13,6 @@ RUN apt-get update && \
       ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
-# Descarga y descomprime el código fuente de pgvector
-RUN wget https://github.com/pgvector/pgvector/archive/refs/tags/v0.8.0.tar.gz && \
-    tar xzf v0.8.0.tar.gz && \
-    rm v0.8.0.tar.gz
-
-# Compila e instala pgvector
-WORKDIR /pgvector-0.8.0
-RUN make && make install
-
-# Limpieza opcional
-WORKDIR /
-RUN rm -rf /pgvector-0.8.0
-
 # Copia init.sql al directorio de inicialización para que se ejecute automáticamente
 COPY init.sql /docker-entrypoint-initdb.d/init.sql
 

@@ -1,4 +1,5 @@
 import time
+from uuid import uuid4
 from modules.postgres import Postgres
 from modules.template import PromptTemplate
 from modules.query_manager import QueryManager
@@ -22,7 +23,6 @@ class SQLQueryGenerator:
             prompt_loader (PromptLoader, opcional): Loader para cargar prompts. Si no se proporciona, se debe instanciar manualmente.
             max_attempts (int): Número máximo de intentos para corregir errores.
         """
-
         # Instanciar Postgres y cargar el esquema
         self.postgres = Postgres(db_config)
         logger.info("Fetching table definitions from the database...")
@@ -70,6 +70,7 @@ class SQLQueryGenerator:
             str: Consulta SQL final generada (o None si falla).
         """
         try:
+            uuid = uuid4()
             attempts = 0
             errors = []
             initial_query = None
@@ -124,20 +125,16 @@ class SQLQueryGenerator:
                 # Execute Model
                 start_time = time.time()
 
+                # Generate query
                 query_text = self.llm.generate(prompt)
-
                 logger.info(f"Model output: {query_text}")
-
-                # pattern = r"<\|start_header_id\|>assistant<\|end_header_id\|>\s*(.*?)\s*<\|eot_id\|>"
-                # match = re.search(pattern, query_text, re.DOTALL)
-                # query = match.group(1).strip()
-
                 end_time = time.time()
                 execution_time = end_time - start_time
-
                 query = query_text
-                return query
+                logger.info(f"Query generated. Execution time: {execution_time}")
 
+                # Validate query
+                logger.info(f"Validating query: {query}")
                 validation_results = self.query_manager.validate_sql_query(query)
 
                 if validation_results["status"] == "OK":
@@ -147,7 +144,10 @@ class SQLQueryGenerator:
                         query_embedding, compare="query", threshold=0.85
                     )
 
+                    # Write into log
+                    logger.info("Writing into log...")
                     self.model_logger.log_evaluation(
+                        uuid,
                         user_input,
                         user_input_embedding,
                         query,
@@ -158,11 +158,13 @@ class SQLQueryGenerator:
 
                     status = "insight_completed"
 
+                    logger.info(f"uui: {uuid}")
                     logger.info(f"query: {query}")
                     logger.info(f"confidence_score: {confidence_score}")
                     logger.info(f"status: {status}")
 
                     response = {
+                        "uuid": uuid,
                         "query": query,
                         "confidence_score": confidence_score,
                         "status": status,
@@ -173,17 +175,6 @@ class SQLQueryGenerator:
                 elif validation_results["status"] == "KO":
                     initial_query = query
                     errors.append(validation_results["message"])
-                    user_input_embedding = self.embedder.embed_text(user_input)
-                    query_embedding = self.embedder.embed_text(query)
-
-                    self.model_logger.log_evaluation(
-                        user_input,
-                        user_input_embedding,
-                        query,
-                        query_embedding,
-                        validation_results,
-                        execution_time,
-                    )
                     logger.warn(f"Error detectado: {validation_results['message']}")
 
                 attempts += 1
@@ -191,7 +182,12 @@ class SQLQueryGenerator:
 
             # "A valid query could not be generated. Can you rephrase the question?"
             status = "query_failed"
-            response = {"status": status}
+            response = {
+                "uuid": uuid,
+                "query": None,
+                "confidence_score": None,
+                "status": status,
+            }
             logger.warn(
                 f"No se pudo generar una consulta válida tras múltiples intentos. Status: {status}"
             )
@@ -199,6 +195,11 @@ class SQLQueryGenerator:
 
         except Exception as e:
             status = "query_failed"
-            response = {"status": status}
+            response = {
+                "uuid": None,
+                "query": None,
+                "confidence_score": None,
+                "status": status,
+            }
             logger.error(e)
             return e, response

@@ -173,3 +173,6 @@ databricks.yml
 
 # VS Code
 .vscode/
+
+#Other
+db_profile.json

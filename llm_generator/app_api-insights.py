@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from insights_generator import InsightGenerator
+from modules.insights_generator import InsightGenerator
 
 app = FastAPI()
 

@@ -1,23 +1,22 @@
 from modules.postgres import Postgres
+import os
+import dotenv
+
+dotenv.load_dotenv(".env.docker")
 
 
 class ModelLogger:
     def __init__(self):
         """
-        Inicializa la clase Logger para manejar los logs de la aplicación y la evaluación.
-
-        Args:
-            app_log_file (str): Archivo para los logs de control de la aplicación.
-            evaluation_log_file (str): Archivo para los logs de evaluación de queries.
+        Inicializa la clase Logger para manejar los logs de evaluación.
         """
-        self.app_log_file = "app.log"
         self.evaluation_log = Postgres(
             {
-                "host": "192.168.1.141",
-                "port": 5433,
-                "database": "evaluation_log",
-                "user": "postgres",
-                "password": "postgres",
+                "host": os.getenv["LLM_POSTGRES_HOST"],
+                "port": os.getenv["LLM_POSTGRES_PORT"],
+                "database": os.getenv["LLM_POSTGRES_DB"],
+                "user": os.getenv["LLM_POSTGRES_USERNAME"],
+                "password": os.getenv["LLM_POSTGRES_PASSWORD"],
             }
         )
 

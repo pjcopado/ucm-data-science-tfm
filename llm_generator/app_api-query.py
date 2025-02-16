@@ -2,7 +2,10 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import Optional
 from modules.sql_generator import SQLQueryGenerator
+import os
+import dotenv
 
+dotenv.load_dotenv(".env.docker")
 app = FastAPI()
 
 # Model name
@@ -10,11 +13,11 @@ model_name = "llama-3-sqlcoder-8b-Q8_0"
 
 # Database configuration
 db_config = {
-    "host": "192.168.1.141",
-    "port": 5433,
-    "database": "sandoz",
-    "user": "postgres",
-    "password": "postgres",
+    "host": os.getenv["EXTERNAL_POSTGRES_HOST"],
+    "port": os.getenv["EXTERNAL_POSTGRES_PORT"],
+    "database": os.getenv["EXTERNAL_POSTGRES_DB"],
+    "user": os.getenv["EXTERNAL_POSTGRES_USERNAME"],
+    "password": os.getenv["EXTERNAL_POSTGRES_PASSWORD"],
 }
 
 # Initialize the SQLQueryGenerator class

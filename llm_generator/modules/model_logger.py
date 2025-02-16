@@ -2,7 +2,9 @@ from modules.postgres import Postgres
 import os
 import dotenv
 
-dotenv.load_dotenv(".env.docker")
+env = os.getenv("ENV", "development")
+if env != "production":
+    dotenv.load_dotenv(".env.docker")
 
 
 class ModelLogger:

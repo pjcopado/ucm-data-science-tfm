@@ -16,24 +16,28 @@ class PromptTemplate:
         self,
         role,
         prompt_file,
-        user_input,
-        user_instructions,
-        db_schema,
+        user_input=None,
+        user_instructions=None,
+        db_schema=None,
         similarity_list=None,
         error_list=None,
         initial_query=None,
+        query_result=None,
+        query_generated=None,
         bos_token="<|begin_of_text|>",
         add_generation_prompt=False
     ):
         logger.info("Loading prompt file...")
                 
         format_params = {
-            "user_input": user_input.strip(),
-            "user_instructions": user_instructions.strip(),
+            "user_input": str(user_input).strip(),
+            "user_instructions": str(user_instructions).strip(),
             "db_schema": db_schema,
             "historic_query": "",
             "error_description": "",
-            "initial_query": ""
+            "initial_query": "",
+            "query_result": str(query_result).strip(),
+            "query_generated": str(query_generated).strip()
         }
 
         if similarity_list:

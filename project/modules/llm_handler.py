@@ -33,9 +33,9 @@ class LLMHandler:
             "--top_p", str(top_p),
             "-no-cnv",
             "--keep", "-1",
-            "-p", str(system_prompt),
+            "-sp",
             "--in-suffix", "<|start_header_id|>assistant<|end_header_id|>\n\n",
-            "-sp"
+            "-p", str(system_prompt)
         ]
 
         logger.info(f"Starting model: {" ".join(cmd)}")
@@ -75,13 +75,13 @@ class LLMHandler:
                     break
                 continue
 
+            if "error:" in line.lower():
+                logger.error(f"[llama.cpp >] {line}")
+                raise RuntimeError(line)
+
             logger.debug(f"[llama.cpp >] {line.strip()}")
 
             if line.strip() == "== Running in interactive mode. ==":
-                break
-
-            if "error:" in line:
-                logger.error(f"[llama.cpp >] Error: {line}")
                 break
 
         time.sleep(15)
@@ -101,6 +101,10 @@ class LLMHandler:
                     break
                 continue
 
+            if "error:" in line:
+                logger.error(f"[llama.cpp >] Error: {line}")
+                raise RuntimeError(line)
+
             logger.debug(f"[llama.cpp >] {line.strip()}")
 
             if line.strip() == "<|start_header_id|>assistant<|end_header_id|>":
@@ -111,10 +115,6 @@ class LLMHandler:
                 captured.append(line)
 
             if capturing and "<|eot_id|>" in line:
-                break
-
-            if "error:" in line:
-                logger.error(f"[llama.cpp >] Error: {line}")
                 break
 
         return "".join(captured).replace("<|eot_id|>", "").strip()

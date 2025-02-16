@@ -1,3 +1,4 @@
+import os
 import logging
 
 class Logger:
@@ -19,6 +20,10 @@ class Logger:
             console_handler = logging.StreamHandler()
             console_formatter = logging.Formatter('%(asctime)s - [%(levelname)s] [%(name)s] %(message)s')
             console_handler.setFormatter(console_formatter)
+
+            if not os.path.exists(log_file):
+                with open(log_file, "w") as f:
+                    f.write("")
 
             # Configurar handler para archivo
             file_handler = logging.FileHandler(log_file, mode='a')  # 'a' para append

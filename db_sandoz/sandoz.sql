@@ -5,7 +5,7 @@ CREATE DATABASE sandoz;
 \c sandoz;
 
 -- Crear tablas si no existen
--- Continets
+-- Continents
 CREATE TABLE IF NOT EXISTS continents (
     code CHAR(2) NOT NULL,
     name VARCHAR(255),
@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS continents (
 );
 
 -- Countries ISO 3166-1 alpha-2 codes and names
-CREATE TABLE countries (
+CREATE TABLE IF NOT EXISTS countries (
     code CHAR(2) NOT NULL,
     continent_code CHAR(2) NOT NULL,
     name VARCHAR(255) NOT NULL,
@@ -22,8 +22,19 @@ CREATE TABLE countries (
     full_name VARCHAR(255) NOT NULL,
     PRIMARY KEY (code),
     CONSTRAINT fk_countries_continents FOREIGN KEY (continent_code) REFERENCES continents (code)
-    CONSTRAINT fk_code_mapping FOREIGN KEY (code) REFERENCES market_mapping (market)
 );
+
+-- Market mapping
+CREATE TABLE IF NOT EXISTS market_mapping (
+    market VARCHAR(10),
+    market_des VARCHAR(50),
+    cluster VARCHAR(50),
+    region VARCHAR(50),
+    CONSTRAINT unique_market UNIQUE (market),
+    CONSTRAINT fk_mapping_countries FOREIGN KEY (market) REFERENCES countries (code)
+);
+
+COMMENT ON COLUMN market_mapping.cluster IS 'The cluster within a region to which a market belongs (e.g., SOUTH)';
 
 -- Contains historical data about volumes and net sales
 CREATE TABLE IF NOT EXISTS monthly_balance (
@@ -32,7 +43,7 @@ CREATE TABLE IF NOT EXISTS monthly_balance (
     bu VARCHAR(5),
     volume NUMERIC(10, 2),
     value NUMERIC(18, 2),
-    CONSTRAINT fk_market FOREIGN KEY (market) REFERENCES countries (code)
+    CONSTRAINT fk_market FOREIGN KEY (market) REFERENCES market_mapping (market)
 );
 
 COMMENT ON COLUMN monthly_balance.month IS 'The month of the sales data, formatted as YYYYMM';
@@ -47,7 +58,7 @@ CREATE TABLE IF NOT EXISTS monthly_lo (
     market VARCHAR(2),
     bu VARCHAR(5),
     value DECIMAL(18, 2),
-    CONSTRAINT fk_market FOREIGN KEY (market) REFERENCES countries (code)
+    CONSTRAINT fk_market FOREIGN KEY (market) REFERENCES market_mapping (market)
 );
 
 COMMENT ON COLUMN monthly_lo.month IS 'The month of the sales data, formatted as YYYYMM';
@@ -55,18 +66,9 @@ COMMENT ON COLUMN monthly_lo.market IS 'The id of the country representing the m
 COMMENT ON COLUMN monthly_lo.bu IS 'The bussiness unit identifier (GN_BP for biosimilars, GN_RE for retail)';
 COMMENT ON COLUMN monthly_lo.value IS 'The planned monetary value of sales (net) in the specified month, region, market, and business unit';
 
--- Market mapping
-CREATE TABLE IF NOT EXISTS market_mapping (
-    market VARCHAR(10),
-    market_des VARCHAR(50),
-    cluster VARCHAR(50),
-    region VARCHAR(50)
-);
-
 -- Cargar datos desde archivos CSV
 COPY continents FROM '/app/sql/data/continents.csv' DELIMITER ',' CSV HEADER;
 COPY countries FROM '/app/sql/data/countries.csv' DELIMITER ',' CSV HEADER;
+COPY market_mapping FROM '/app/sql/data/sample-market_mapping.csv' DELIMITER ',' CSV HEADER;
 COPY monthly_balance FROM '/app/sql/data/sample-monthly_balance.csv' DELIMITER ',' CSV HEADER;
 COPY monthly_lo FROM '/app/sql/data/sample-monthly_lo.csv' DELIMITER ',' CSV HEADER;
-COPY market_mapping FROM '/app/sql/data/sample-market_mapping.csv' DELIMITER ',' CSV HEADER;
-

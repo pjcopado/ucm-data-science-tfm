@@ -39,31 +39,9 @@ services:
       - backend/.env.docker
     depends_on:
       - postgres
-  # openWebUI:
-  #   container_name: chatbot-WebUI
-  #   image: ghcr.io/open-webui/open-webui:main
-  #   restart: always
-  #   ports:
-  #     - "3000:8080"
-  #   extra_hosts:
-  #     - "host.docker.internal:host-gateway"
-  #   volumes:
-  #     - open-webui-local:/app/backend/data
-
-  # ollama:
-  #   container_name: chatbot-ollama
-  #   image: ollama/ollama:0.5.7
-  #   ports:
-  #     - "11434:11434"
-  #   volumes:
-  #     - ollama-local:/root/.ollama
 
 volumes:
   postgres-local:
     external: true
   pgadmin-local:
     external: true
-  # ollama-local:
-  #   external: true
-  # open-webui-local:
-  #   external: true

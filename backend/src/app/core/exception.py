@@ -7,6 +7,12 @@ from starlette import status
 from fastapi.responses import JSONResponse
 
 
+class ChatError(Exception):
+    def __init__(self, status: str, detail: str):
+        self.status = status
+        self.detail = detail
+
+
 class BaseError(pydantic.BaseModel):
     code: str = pydantic.Field(..., description="Error code (internal)")
     detail: str = pydantic.Field(..., description="Error message or description")

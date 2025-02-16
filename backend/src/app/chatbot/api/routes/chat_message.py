@@ -1,10 +1,12 @@
-from fastapi import APIRouter, Body, status, Depends, Request
+from fastapi import APIRouter, Body, status, Depends
 from fastapi_pagination import Page
 from fastapi_pagination.ext.sqlalchemy import paginate as sqla_paginate
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.app.common.api.dependencies.repository import get_repository
+from src.app.common.api.dependencies.session_ext import get_async_session_ext
 from src.app.chatbot.api import dependencies as deps
-from src.app.chatbot import repository, schemas as sch, enums
+from src.app.chatbot import repository, service, schemas as sch, enums
 from src.app.core import exception
 
 router = APIRouter(prefix="/chats/{chat_id}/messages", tags=["chat"])
@@ -31,12 +33,20 @@ async def get_messages(
     response_model=sch.ChatMessageSch,
 )
 async def create_message(
-    request: Request,
     chat: deps.Chat,
-    obj_in: sch.ChatMessageCreateSch = Body(...),
-    repository: repository.ChatMessageRepository = Depends(get_repository(repo_type=repository.ChatMessageRepository)),
+    session_ext: AsyncSession = Depends(get_async_session_ext),
+    obj_in: sch.ChatMessageCreateRequestSch = Body(...),
+    chat_repository: repository.ChatRepository = Depends(get_repository(repo_type=repository.ChatRepository)),
+    chat_message_repository: repository.ChatMessageRepository = Depends(
+        get_repository(repo_type=repository.ChatMessageRepository)
+    ),
 ):
-    return await repository.create(obj_in=obj_in, chat_id=chat.id)
+    chat_service = service.ChatService(
+        chat_repository=chat_repository,
+        chat_message_repository=chat_message_repository,
+        session_ext=session_ext,
+    )
+    return await chat_service.create_message(obj_in=obj_in, chat_id=chat.id)
 
 
 @router.patch(
@@ -47,9 +57,18 @@ async def create_message(
 )
 async def update_message(
     message: deps.ChatMessage,
+    session_ext: AsyncSession = Depends(get_async_session_ext),
     obj_in: sch.ChatMessageUpdateSch = Body(...),
-    repository: repository.ChatMessageRepository = Depends(get_repository(repo_type=repository.ChatMessageRepository)),
+    chat_repository: repository.ChatRepository = Depends(get_repository(repo_type=repository.ChatRepository)),
+    chat_message_repository: repository.ChatMessageRepository = Depends(
+        get_repository(repo_type=repository.ChatMessageRepository)
+    ),
 ):
+    chat_service = service.ChatService(
+        chat_repository=chat_repository,
+        chat_message_repository=chat_message_repository,
+        session_ext=session_ext,
+    )
     if message.status != enums.ChatMessageResponseStatusEnum.COMPLETED:
         raise exception.BaseAPIError(status_code=status.HTTP_400_BAD_REQUEST, detail="Message is not completed")
-    return await repository.update(obj_db=message, obj_in=obj_in)
+    return await chat_service.update_message(obj_db=message, obj_in=obj_in)

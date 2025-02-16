@@ -1,4 +1,4 @@
-__all__ = ["Base", "UUIDMixIn", "IntegerIDMixIn"]
+__all__ = ["Base", "UUIDMixIn"]
 
 
 import uuid
@@ -14,10 +14,17 @@ class DBTable(DeclarativeBase):
     metadata: sa.MetaData = sa.MetaData()
 
     created_at: Mapped[dt.datetime] = mapped_column(
-        sa.DateTime(timezone=True), index=True, nullable=False, server_default=sqlalchemy_functions.now(), sort_order=70
+        sa.DateTime(timezone=True),
+        index=True,
+        nullable=False,
+        server_default=sqlalchemy_functions.now(),
+        sort_order=70,
     )
     updated_at: Mapped[dt.datetime] = mapped_column(
-        sa.DateTime(timezone=True), nullable=True, onupdate=sqlalchemy_functions.now(), sort_order=80
+        sa.DateTime(timezone=True),
+        nullable=True,
+        onupdate=sqlalchemy_functions.now(),
+        sort_order=80,
     )
 
     def __repr__(self) -> str:
@@ -29,9 +36,9 @@ Base = DBTable
 
 class UUIDMixIn(object):
     id: Mapped[uuid.UUID] = mapped_column(
-        primary_key=True, nullable=False, server_default=sa.text("gen_random_uuid()"), sort_order=-1
+        primary_key=True,
+        index=True,
+        nullable=False,
+        server_default=sa.text("gen_random_uuid()"),
+        sort_order=-1,
     )
-
-
-class IntegerIDMixIn(object):
-    id: Mapped[int] = mapped_column(sa.BigInteger, primary_key=True, nullable=False, autoincrement=True, sort_order=-1)

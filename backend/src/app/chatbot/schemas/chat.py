@@ -25,4 +25,4 @@ class ChatUpdateSch(OrmBaseModel):
 
 
 class ChatSch(ChatBaseSch, TimestampModelMixin, UUIDModelMixin):
-    first_message: ChatMessageSch
+    first_message: ChatMessageSch | None

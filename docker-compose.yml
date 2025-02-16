@@ -27,18 +27,6 @@ services:
   #   env_file:
   #     - backend/.env.docker
 
-  pgadmin:
-    container_name: chatbot-pgadmin
-    image: dpage/pgadmin4:8.1
-    restart: always
-    ports:
-      - 5050:80
-    volumes:
-      - pgadmin-local:/var/lib/pgadmin
-    environment:
-      - PGADMIN_DEFAULT_EMAIL=chatbot@gmail.com
-      - PGADMIN_DEFAULT_PASSWORD=123456
-
   postgres-external:
     container_name: chatbot-postgresql-external
     build:
@@ -51,10 +39,22 @@ services:
     env_file:
       - db_sandoz/.env.docker
 
+  pgadmin:
+    container_name: chatbot-pgadmin
+    image: dpage/pgadmin4:8.1
+    restart: always
+    ports:
+      - 5050:80
+    volumes:
+      - pgadmin-local:/var/lib/pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=chatbot@gmail.com
+      - PGADMIN_DEFAULT_PASSWORD=123456
+
 volumes:
-  postgres-local:
-    external: true
   pgadmin-local:
+    external: true
+  postgres-local:
     external: true
   postgres-external:
     external: true

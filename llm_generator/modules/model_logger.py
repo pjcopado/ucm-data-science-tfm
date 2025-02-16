@@ -81,6 +81,12 @@ class ModelLogger:
             execution_time,
         )
 
+    def user_query_check(self, uuid, is_correct):
+        """
+        Marca una entrada en el log como correcta o incorrecta.
+        """
+        self.evaluation_log.update_is_correct(uuid, is_correct)
+
     def log_similarity_search(
         self, embedding, top_k=3, compare="user_input", status="OK", threshold=0.0
     ):

@@ -1,5 +1,3 @@
-name: chatbot
-
 services:
   llm_db:
     build:
@@ -20,6 +18,8 @@ services:
   llm_app:
     build:
       context: ./llm_generator
+      args:
+        GPU_TYPE: amd
     container_name: llm_handler
     depends_on:
       - llm_db
@@ -34,13 +34,13 @@ services:
       LLM_POSTGRES_DB: ${LLM_POSTGRES_DB}
     ports:
       - "8001:8001"  # Solo necesario si se accede desde fuera del contenedor
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
+    # deploy:
+    #  resources:
+    #    reservations:
+    #      devices:
+    #        - driver: nvidia
+    #          count: all
+    #          capabilities: [gpu]
 
   postgres:
     container_name: chatbot-postgresql

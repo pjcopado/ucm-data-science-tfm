@@ -7,7 +7,7 @@ services:
     container_name: llm_db
     restart: unless-stopped
     env_file:
-      - ../../.env.docker
+      - llm_generator/db_model/.env.docker
     environment:
       POSTGRES_USER: ${LLM_POSTGRES_USERNAME}
       POSTGRES_PASSWORD: ${LLM_POSTGRES_PASSWORD}
@@ -24,7 +24,7 @@ services:
     depends_on:
       - llm_db
     env_file:
-      - .env.docker
+      - llm_generator/.env.docker
     environment:
       ENV: production
       LLM_POSTGRES_HOST: llm_db
@@ -42,27 +42,31 @@ services:
               count: all
               capabilities: [gpu]
 
-  backend:
-    build:
-      context: ./backend  # Ajusta esto a la ruta de tu Dockerfile del backend
-    container_name: backend
-    depends_on:
-      - llm_app
-      - llm_db
+  postgres:
+    container_name: chatbot-postgresql
+    image: postgres:15.4
+    volumes:
+      - postgres-local:/var/lib/postgresql/data
+    ports:
+      - 5433:5433
+    command: -p 5433
     env_file:
-      - db_sandoz/.env.docker
-    environment:
-      ENV: production
-      LLM_APP_HOST: llm_app
-      LLM_APP_PORT: ${LLM_APP_PORT}
-      LLM_POSTGRES_HOST: llm_db
-      LLM_POSTGRES_PORT: ${LLM_POSTGRES_PORT}
-      LLM_POSTGRES_USERNAME: ${LLM_POSTGRES_USERNAME}
-      LLM_POSTGRES_PASSWORD: ${LLM_POSTGRES_PASSWORD}
-      LLM_POSTGRES_DB: ${LLM_POSTGRES_DB}
+      - backend/.env.docker
+
+  backend:
+    container_name: backend
+    platform: linux/x86_64
+    build:
+      context: ./backend
     ports:
       - 8000:8000
       - 5678:5678
+    volumes:
+      - .:/code
+    env_file:
+      - backend/.env.docker
+    depends_on:
+      - postgres
 
   postgres-external:
     container_name: chatbot-postgresql-external
@@ -90,6 +94,10 @@ services:
 
 volumes:
   postgres_data:
-  postgres-external:
   pgadmin-local:
+    external: true
+  postgres-local:
+    external: true
+  postgres-external:
+    external: true
 

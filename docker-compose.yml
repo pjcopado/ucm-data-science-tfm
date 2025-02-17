@@ -6,6 +6,8 @@ services:
       context: ./llm_generator/db_model
     container_name: llm_db
     restart: unless-stopped
+    env_file:
+      - ../../.env.docker
     environment:
       POSTGRES_USER: ${LLM_POSTGRES_USERNAME}
       POSTGRES_PASSWORD: ${LLM_POSTGRES_PASSWORD}
@@ -21,6 +23,8 @@ services:
     container_name: llm_handler
     depends_on:
       - llm_db
+    env_file:
+      - .env.docker
     environment:
       ENV: production
       LLM_POSTGRES_HOST: llm_db
@@ -30,6 +34,13 @@ services:
       LLM_POSTGRES_DB: ${LLM_POSTGRES_DB}
     ports:
       - "8001:8001"  # Solo necesario si se accede desde fuera del contenedor
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
 
   backend:
     build:
@@ -38,9 +49,11 @@ services:
     depends_on:
       - llm_app
       - llm_db
+    env_file:
+      - db_sandoz/.env.docker
     environment:
       ENV: production
-      LLM_APP_HOST: llm_app  # Acceso interno dentro de la red de Docker
+      LLM_APP_HOST: llm_app
       LLM_APP_PORT: ${LLM_APP_PORT}
       LLM_POSTGRES_HOST: llm_db
       LLM_POSTGRES_PORT: ${LLM_POSTGRES_PORT}

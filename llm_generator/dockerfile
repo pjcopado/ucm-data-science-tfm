@@ -84,12 +84,12 @@ COPY . /code/llm_generator
 RUN mkdir -p /code/llm_generator/models/gguf
 
 # Descargar el modelo "llama-3-sqlcoder-8b-GGUF" con cuantización Q8_0
-#RUN wget -O /code/llm_generator/models/gguf/llama-3-sqlcoder-8b-Q8_0.gguf \
-#    "https://huggingface.co/QuantFactory/llama-3-sqlcoder-8b-GGUF/resolve/main/llama-3-sqlcoder-8b.Q8_0.gguf"
+RUN wget -O /code/llm_generator/models/gguf/llama-3-sqlcoder-8b-Q8_0.gguf \
+    "https://huggingface.co/QuantFactory/llama-3-sqlcoder-8b-GGUF/resolve/main/llama-3-sqlcoder-8b.Q8_0.gguf"
 
 # Descargar el modelo "Llama-3.2-3B-Instruct-GGUF" con cuantización Q6_K_L
-#RUN wget -O /code/llm_generator/models/gguf/llama-3_2-3B-instruct-Q6_K_L.gguf \
-#    "https://huggingface.co/bartowski/Llama-3.2-3B-Instruct-GGUF/resolve/main/Llama-3.2-3B-Instruct-Q6_K_L.gguf"
+RUN wget -O /code/llm_generator/models/gguf/llama-3_2-3B-instruct-Q6_K_L.gguf \
+    "https://huggingface.co/bartowski/Llama-3.2-3B-Instruct-GGUF/resolve/main/Llama-3.2-3B-Instruct-Q6_K_L.gguf"
 
 # Run app.py when the container launches
 CMD ["uvicorn", "llm_generator.main:app", "--host", "0.0.0.0", "--port", "8001"]

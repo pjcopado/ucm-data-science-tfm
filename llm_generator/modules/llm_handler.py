@@ -18,7 +18,7 @@ class LLMHandler:
         prompt_cache="./data/prompt_cahe.bin"
     ):
         
-        self.model_path = f"llm_generator/models/gguf/{model_name}.gguf"
+        self.model_path = f"/code/llm_generator/models/gguf/{model_name}.gguf"
             
         cmd = [
             "llama-cli",

@@ -20,7 +20,7 @@ services:
     build:
       context: ./llm_generator
       args:
-        GPU_TYPE: amd
+        GPU_TYPE: nvidia
     container_name: llm_handler
     depends_on:
       - llm_db
@@ -38,13 +38,13 @@ services:
       EXTERNAL_POSTGRES_DB: ${EXTERNAL_POSTGRES_DB}
     ports:
       - "5001:5001" # Solo necesario si se accede desde fuera del contenedor
-    # deploy:
-    #  resources:
-    #    reservations:
-    #      devices:
-    #        - driver: nvidia
-    #          count: all
-    #          capabilities: [gpu]
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
 
   postgres:
     container_name: chatbot-postgresql
@@ -109,3 +109,4 @@ volumes:
     external: true
   postgres-llm:
     external: true
+

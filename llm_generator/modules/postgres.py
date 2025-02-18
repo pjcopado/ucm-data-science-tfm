@@ -310,7 +310,7 @@ class Postgres:
                 is_correct,
                 {column},
                 ABS({column} <#> %(embedding)s::vector) AS similarity
-            FROM logs
+            FROM logs;
         """
 
         where_clause = (
@@ -335,7 +335,7 @@ class Postgres:
             ) AS sub
             WHERE {where_clause}
             ORDER BY similarity DESC
-            LIMIT %(top_k)s
+            LIMIT %(top_k)s;
         """
 
         results = []

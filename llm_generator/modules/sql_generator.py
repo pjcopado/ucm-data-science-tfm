@@ -82,6 +82,7 @@ class SQLQueryGenerator:
             while attempts < self.max_attempts:
                 if not errors:
                     user_input_embedding = self.embedder.embed_text(user_input)
+                    """
                     similarity_list = self.model_logger.log_similarity_search(
                         user_input_embedding,
                         top_k=3,
@@ -90,13 +91,14 @@ class SQLQueryGenerator:
                         threshold=0.90,
                     )
                     print(similarity_list)
+                    """
                     prompt = self.prompt_template.generate_prompt(
                         "user",
                         self.user_prompt_file,
                         user_input,
                         user_instructions,
                         db_schema,
-                        similarity_list=similarity_list,
+                        # similarity_list=similarity_list,
                     )
 
                 elif errors and attempts == 1:
@@ -141,12 +143,15 @@ class SQLQueryGenerator:
                 if validation_results["status"] == "OK":
                     user_input_embedding = self.embedder.embed_text(user_input)
                     query_embedding = self.embedder.embed_text(query)
+                    """
                     confidence_score = self.model_logger.log_get_confidence_score(
                         query_embedding, compare="query", threshold=0.85
                     )
+                    """
 
                     # Write into log
                     logger.info("Writing into log...")
+                    """
                     self.model_logger.log_evaluation(
                         uuid,
                         user_input,
@@ -155,6 +160,7 @@ class SQLQueryGenerator:
                         query_embedding,
                         execution_time,
                     )
+                    """
 
                     status = "insight_completed"
 

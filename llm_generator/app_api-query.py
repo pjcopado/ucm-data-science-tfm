@@ -13,11 +13,11 @@ model_name = "llama-3-sqlcoder-8b-Q8_0"
 
 # Database configuration
 db_config = {
-    "host": os.getenv["EXTERNAL_POSTGRES_HOST"],
-    "port": os.getenv["EXTERNAL_POSTGRES_PORT"],
-    "database": os.getenv["EXTERNAL_POSTGRES_DB"],
-    "user": os.getenv["EXTERNAL_POSTGRES_USERNAME"],
-    "password": os.getenv["EXTERNAL_POSTGRES_PASSWORD"],
+    "host": os.getenv("EXTERNAL_POSTGRES_HOST"),
+    "port": os.getenv("EXTERNAL_POSTGRES_PORT"),
+    "database": os.getenv("EXTERNAL_POSTGRES_DB"),
+    "user": os.getenv("EXTERNAL_POSTGRES_USERNAME"),
+    "password": os.getenv("EXTERNAL_POSTGRES_PASSWORD"),
 }
 
 # Initialize the SQLQueryGenerator class

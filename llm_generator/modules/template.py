@@ -1,6 +1,6 @@
 from jinja2 import Template
-from modules.prompt_loader import PromptLoader
-from modules.system_logger import Logger
+from prompt_loader import PromptLoader
+from system_logger import Logger
 
 logger = Logger("Prompt Render")
 

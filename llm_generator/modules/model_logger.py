@@ -1,4 +1,4 @@
-from modules.postgres import Postgres
+from postgres import Postgres
 import os
 import dotenv
 

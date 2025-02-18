@@ -1,6 +1,6 @@
 import torch
 from sentence_transformers import SentenceTransformer, util
-from modules.system_logger import Logger
+from system_logger import Logger
 
 logger = Logger("Embedder")
 

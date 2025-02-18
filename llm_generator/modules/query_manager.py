@@ -1,6 +1,6 @@
 import sqlglot
 from sqlglot.errors import ParseError
-from modules.system_logger import Logger
+from system_logger import Logger
 
 logger = Logger("Query Manager")
 

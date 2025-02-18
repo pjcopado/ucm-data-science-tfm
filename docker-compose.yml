@@ -11,7 +11,7 @@ services:
       POSTGRES_PORT: ${LLM_POSTGRES_PORT}
       POSTGRES_DB: ${LLM_POSTGRES_DB}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres-llm:/var/lib/postgresql/data
     ports:
       - 5434:5432
     command: -p 5434
@@ -101,10 +101,11 @@ services:
       - PGADMIN_DEFAULT_PASSWORD=123456
 
 volumes:
-  postgres_data:
   pgadmin-local:
     external: true
   postgres-local:
     external: true
   postgres-external:
+    external: true
+  postgres-llm:
     external: true

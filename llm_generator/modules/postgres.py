@@ -34,6 +34,7 @@ class Postgres:
         WHERE table_schema = 'public'
         ORDER BY table_name, ordinal_position;
         """
+        print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
 
         try:
             with psycopg2.connect(**self.db_config) as conn:

@@ -25,13 +25,11 @@ class SQLQueryGenerator:
         """
         # Instanciar Postgres y cargar el esquema
         self.postgres = Postgres(db_config)
-        print(f"db_config: {db_config}")
         logger.info("Fetching table definitions from the database...")
         self.db_schema = self.postgres.get_db_schema()
         self.db_schema_and_relationships = (
             self.postgres.get_db_schema_and_relationships()
         )
-
         # Instanciar otros modulos
         self.prompt_template = PromptTemplate(model_name)
         self.query_manager = QueryManager(self.db_schema)

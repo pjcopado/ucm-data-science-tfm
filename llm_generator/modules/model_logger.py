@@ -7,9 +7,7 @@ from .postgres import Postgres
 # Add the path to the sys.path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-env = os.getenv("ENV", "development")
-if env != "production":
-    dotenv.load_dotenv("../.env.docker")
+dotenv.load_dotenv()
 
 
 class ModelLogger:

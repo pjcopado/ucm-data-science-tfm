@@ -16,7 +16,7 @@ from modules.sql_generator import SQLQueryGenerator
 from modules.insights_generator import InsightGenerator
 from modules.model_logger import ModelLogger
 
-dotenv.load_dotenv(".env.docker")
+dotenv.load_dotenv()
 
 # Model name
 MODEL_NAME = "llama-3-sqlcoder-8b-Q8_0"
@@ -37,14 +37,14 @@ def lifespan(app: FastAPI):
 
     # Initialize SQLQueryGenerator
     sql_generator = SQLQueryGenerator(
-        model_name=MODEL_NAME,
-        db_config=db_config,
-        max_attempts=3,
+        model_name=MODEL_NAME, db_config=db_config, max_attempts=3
     )
+    # sql_generator = 1
     app.state.llms["sql_generator"] = sql_generator
 
     # Initialize InsightGenerator
     insight_generator = InsightGenerator()
+    # insight_generator = 1
     app.state.llms["insight_generator"] = insight_generator
 
     # Initialize M
@@ -56,7 +56,7 @@ def lifespan(app: FastAPI):
     app.state.llms.clear()
 
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(debug=True, lifespan=lifespan)
 
 
 @app.get("/", include_in_schema=False)

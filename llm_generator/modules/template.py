@@ -7,11 +7,11 @@ logger = Logger("Prompt Render")
 
 class PromptTemplate:
     def __init__(self, model_name):
-        self.template_path = f"llm_generator/templates/{model_name}.jinja"
+        self.template_path = f"/code/llm_generator/templates/{model_name}.jinja"
         with open(self.template_path, "r", encoding="utf-8") as f:
             template_str = f.read()
         self.jinja_template = Template(template_str)
-        self.prompt_loader = PromptLoader(prompt_dir=f"llm_generator/prompts/{model_name}")
+        self.prompt_loader = PromptLoader(prompt_dir=f"/code/llm_generator/prompts/{model_name}")
 
     def generate_prompt(
         self,

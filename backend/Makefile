@@ -3,7 +3,7 @@ install_dependencies:
 
 local_test:
 	export DB_CONNECTION_STATUS=$$? && \
-	python -m uvicorn src.app.main:app --port 8000 --log-level debug --reload
+	python -m uvicorn src.app.main:app --port 5000 --log-level debug --reload
 
 alembic_revision:
 	@echo "Please enter a message for the review:"

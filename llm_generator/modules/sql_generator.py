@@ -1,12 +1,12 @@
 import time
 from uuid import uuid4
-from modules.postgres import Postgres
-from modules.template import PromptTemplate
-from modules.query_manager import QueryManager
-from modules.embedding_manager import EmbeddingManager
-from modules.model_logger import ModelLogger
-from modules.llm_handler import LLMHandler
-from modules.system_logger import Logger
+from .postgres import Postgres
+from .template import PromptTemplate
+from .query_manager import QueryManager
+from .embedding_manager import EmbeddingManager
+from .model_logger import ModelLogger
+from .llm_handler import LLMHandler
+from .system_logger import Logger
 
 logger = Logger("Query Generator")
 
@@ -25,6 +25,7 @@ class SQLQueryGenerator:
         """
         # Instanciar Postgres y cargar el esquema
         self.postgres = Postgres(db_config)
+        print(f"db_config: {db_config}")
         logger.info("Fetching table definitions from the database...")
         self.db_schema = self.postgres.get_db_schema()
         self.db_schema_and_relationships = (

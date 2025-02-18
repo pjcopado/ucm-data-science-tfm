@@ -1,31 +1,72 @@
-name: chatbot
-
 services:
-  # web:
-  #   container_name: chatbot-app
-  #   platform: linux/x86_64
-  #   build:
-  #     context: ./backend
-  #   ports:
-  #     - 8000:8000
-  #     - 5678:5678
-  #   volumes:
-  #     - .:/code
-  #   env_file:
-  #     - backend/.env.docker
-  #   depends_on:
-  #     - postgres
+  llm_db:
+    build:
+      context: ./llm_generator/db_model
+    container_name: llm_db
+    restart: unless-stopped
+    env_file:
+      - .env.docker
+    environment:
+      POSTGRES_USER: ${LLM_POSTGRES_USERNAME}
+      POSTGRES_PASSWORD: ${LLM_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${LLM_POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5434:5434"
 
-  # postgres:
-  #   container_name: chatbot-postgresql
-  #   image: postgres:15.4
-  #   volumes:
-  #     - postgres-local:/var/lib/postgresql/data
-  #   ports:
-  #     - 5433:5433
-  #   command: -p 5433
-  #   env_file:
-  #     - backend/.env.docker
+  llm_app:
+    build:
+      context: ./llm_generator
+      args:
+        GPU_TYPE: amd
+    container_name: llm_handler
+    depends_on:
+      - llm_db
+    env_file:
+      - .env.docker
+    environment:
+      ENV: production
+      LLM_POSTGRES_HOST: ${LLM_POSTGRES_HOST}
+      LLM_POSTGRES_PORT: ${LLM_POSTGRES_PORT}
+      LLM_POSTGRES_USERNAME: ${LLM_POSTGRES_USERNAME}
+      LLM_POSTGRES_PASSWORD: ${LLM_POSTGRES_PASSWORD}
+      LLM_POSTGRES_DB: ${LLM_POSTGRES_DB}
+    ports:
+      - "5001:5001"  # Solo necesario si se accede desde fuera del contenedor
+    # deploy:
+    #  resources:
+    #    reservations:
+    #      devices:
+    #        - driver: nvidia
+    #          count: all
+    #          capabilities: [gpu]
+
+  postgres:
+    container_name: chatbot-postgresql
+    image: postgres:15.4
+    volumes:
+      - postgres-local:/var/lib/postgresql/data
+    ports:
+      - 5433:5433
+    command: -p 5433
+    env_file:
+      - backend/.env.docker
+
+  backend:
+    container_name: backend
+    platform: linux/x86_64
+    build:
+      context: ./backend
+    ports:
+      - 5000:5000
+      - 5678:5678
+    volumes:
+      - .:/code
+    env_file:
+      - backend/.env.docker
+    depends_on:
+      - postgres
 
   postgres-external:
     container_name: chatbot-postgresql-external
@@ -34,17 +75,17 @@ services:
     volumes:
       - postgres-external:/var/lib/postgresql/data
     ports:
-      - 5435:5435
+      - "5435:5435"
     command: -p 5435
     env_file:
-      - db_sandoz/.env.docker
+      - .env.docker
 
   pgadmin:
     container_name: chatbot-pgadmin
     image: dpage/pgadmin4:8.1
     restart: always
     ports:
-      - 5050:80
+      - "5050:80"
     volumes:
       - pgadmin-local:/var/lib/pgadmin
     environment:
@@ -52,6 +93,7 @@ services:
       - PGADMIN_DEFAULT_PASSWORD=123456
 
 volumes:
+  postgres_data:
   pgadmin-local:
     external: true
   postgres-local:

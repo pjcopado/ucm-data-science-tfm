@@ -2,14 +2,19 @@ import uuid
 from contextlib import asynccontextmanager
 from typing import Optional
 import os
+import sys
 import dotenv
 
 from fastapi import FastAPI, HTTPException, Request, Body
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 
+# Add the path to the sys.path
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 from modules.sql_generator import SQLQueryGenerator
 from modules.insights_generator import InsightGenerator
+from modules.model_logger import ModelLogger
 
 dotenv.load_dotenv(".env.docker")
 
@@ -27,75 +32,28 @@ db_config = {
 }
 
 
-# # Mock function for SQL generator
-# def mock_generate_sql_query(user_question, user_instruction=None, db_schema=None):
-#     return {
-#         "id": uuid.uuid4(),
-#         "query": f"SELECT * FROM mock_table WHERE question = '{user_question}'",
-#         "confidence_score": 0.99,
-#         "status": "success",
-#     }
-
-
-# # Mock function for Insight generator
-# def mock_generate_response(user_question, query_result):
-#     return {
-#         "insight_response": f"Mock insight for query result: {query_result}",
-#         "query_explanation": f"Mock explanation for query: {user_question}",
-#         "status": "success",
-#     }
-
-
-# @asynccontextmanager
-# async def lifespan(app: FastAPI):
-#     """Mocking model initialization to speed up startup"""
-#     print("✅ Mock initialization started...")
-
-#     # Ensure app.state.llms is initialized
-#     if not hasattr(app.state, "llms"):
-#         app.state.llms = {}
-
-#     app.state.llms["sql_generator"] = type(
-#         "MockSQLGenerator", (), {"generate_sql_query": mock_generate_sql_query}
-#     )()
-#     app.state.llms["insight_generator"] = type(
-#         "MockInsightGenerator", (), {"generate_response": mock_generate_response}
-#     )()
-
-#     yield
-
-#     print("🛑 Cleaning up...")
-#     app.state.llms.clear()
-
-
 def lifespan(app: FastAPI):
     app.state.llms = dict()
+
+    # Initialize SQLQueryGenerator
     sql_generator = SQLQueryGenerator(
         model_name=MODEL_NAME,
         db_config=db_config,
         max_attempts=3,
     )
     app.state.llms["sql_generator"] = sql_generator
+
+    # Initialize InsightGenerator
     insight_generator = InsightGenerator()
     app.state.llms["insight_generator"] = insight_generator
+
+    # Initialize M
+    model_logger = ModelLogger()
+    app.state.llms["model_logger"] = model_logger
+
+    # Clear all models on shutdown
     yield
     app.state.llms.clear()
-
-
-# def model_loader(*args, **kwargs):
-#     print("Model loaded")
-
-
-# @asynccontextmanager
-# async def lifespan(app: FastAPI):
-#     print(3)
-#     app.state.llms = dict()
-#     app.state.llms["sql_generator"] = model_loader
-#     app.state.llms["insight_generator"] = model_loader
-#     print(app)
-#     print(app.state.llms)
-#     yield
-#     app.state.llms.clear()
 
 
 app = FastAPI(debug=True, lifespan=lifespan)
@@ -106,9 +64,7 @@ async def root():
     return RedirectResponse(url="/docs")
 
 
-#### SQL Generator
-
-
+# SQL Generator
 class SqlGeneratorRequest(BaseModel):
     user_question: str
     user_instruction: Optional[str] = None
@@ -136,21 +92,25 @@ def generate_sql(request: Request, obj_in: SqlGeneratorRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.patch(
-    "/sql_generator/{id}", response_model=SqlGeneratorResponse, tags=["SQL Generator"]
-)
+# Update SQL
+@app.patch("/sql_generator/{id}", tags=["Update SQL"])
 def update_sql(
     request: Request,
     id: uuid.UUID,
     is_correct: bool = Body(..., embed=True),
 ):
-    # TODO pass function to update
-    pass
+    model_logger = request.app.state.llms["model_logger"]
+    try:
+        response = model_logger.user_query_check(
+            id,
+            is_correct,
+        )
+        return response
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
-#### Insight Generator
-
-
+# Insight Generator
 class InsightGeneratorRequest(BaseModel):
     user_question: str
     query_result: str

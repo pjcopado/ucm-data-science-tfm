@@ -19,3 +19,5 @@ requirements-prod.txt
 CONTAINER.md
 README.md
 node_modules/
+llm_generator/models/gguf/*
+models/gguf/*

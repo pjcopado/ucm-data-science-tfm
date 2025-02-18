@@ -2,7 +2,7 @@ import subprocess
 import threading
 import queue
 import time
-from modules.system_logger import Logger
+from .system_logger import Logger
 
 logger = Logger("LLM Handler")
 
@@ -18,7 +18,7 @@ class LLMHandler:
         prompt_cache="./data/prompt_cahe.bin"
     ):
         
-        self.model_path = f"./models/gguf/{model_name}.gguf"
+        self.model_path = f"llm_generator/models/gguf/{model_name}.gguf"
             
         cmd = [
             "llama-cli",

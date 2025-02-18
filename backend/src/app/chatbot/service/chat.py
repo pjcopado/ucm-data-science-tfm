@@ -2,10 +2,11 @@ import uuid
 
 import loguru
 import sqlalchemy as sa
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.app.core.exception import ChatError
 from src.app.chatbot import models, repository, schemas as sch, enums
-from sqlalchemy.ext.asyncio import AsyncSession
+from src.app.services.llm_api import LLMApiService
 
 
 class ChatService:
@@ -19,15 +20,19 @@ class ChatService:
         self.chat_repository = chat_repository
         self.chat_message_repository = chat_message_repository
         self.session_ext = session_ext
+        self.llm_api_service = LLMApiService()
 
     async def construct_query(self, prompt: str):
         # send prompt to llm and receive query
+        query_dict = await self.llm_api_service.construct_query(user_question=prompt, user_instruction="")
+        print(query_dict)
+
         # TODO call query model
-        llm_response_id = uuid.uuid4()
-        query = "SELECT * FROM alembic_version"
-        confidence_score = 0.9
-        status = enums.ChatMessageResponseStatusEnum.QUERY_COMPLETED
-        query_dict = {"llm_response_id": llm_response_id, "query": query, "confidence_score": confidence_score, "status": status}
+        # llm_response_id = uuid.uuid4()
+        # query = "SELECT * FROM alembic_version"
+        # confidence_score = 0.9
+        # status = enums.ChatMessageResponseStatusEnum.QUERY_COMPLETED
+        # query_dict = {"llm_response_id": llm_response_id, "query": query, "confidence_score": confidence_score, "status": status}
         #####
         return query_dict
 
@@ -46,11 +51,13 @@ class ChatService:
 
     async def construct_insight(self, prompt: str, query_response: str):
         # send prompt and response to llm and receive insight
+        insight_dict = await self.llm_api_service.get_insights_response(user_question=prompt, query_result=query_response)
+        print(insight_dict)
         # TODO call insight model
-        insights_response = f"{prompt}: {query_response}"
-        query_explanation = "This is a query explanation..."
-        status = enums.ChatMessageResponseStatusEnum.INSIGHT_COMPLETED
-        insight_dict = {"insights_response": insights_response, "query_explanation": query_explanation, "status": status}
+        # insights_response = f"{prompt}: {query_response}"
+        # query_explanation = "This is a query explanation..."
+        # status = enums.ChatMessageResponseStatusEnum.INSIGHT_COMPLETED
+        # insight_dict = {"insights_response": insights_response, "query_explanation": query_explanation, "status": status}
         #####
         return insight_dict
 
@@ -116,8 +123,9 @@ class ChatService:
             return await self.chat_message_repository.create(obj_in=obj_in_, chat_id=chat_id)
 
     async def update_message(self, obj_db: models.ChatMessageModel, obj_in: sch.ChatMessageUpdateSch):
+        response = await self.llm_api_service.validate_answer(question_id=obj_db.llm_response_id, is_valid=obj_in.is_valid)
+        print(response)
         # TODO upate llm database
-        #
         #########
         return await self.chat_message_repository.update(obj_db=obj_db, obj_in=obj_in)
 

@@ -1,5 +1,5 @@
 import os
-from system_logger import Logger
+from .system_logger import Logger
 
 logger = Logger("Prompt Loader")
 

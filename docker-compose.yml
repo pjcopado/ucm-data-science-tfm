@@ -27,7 +27,7 @@ services:
       - .env.docker
     environment:
       ENV: production
-      LLM_POSTGRES_HOST: llm_db
+      LLM_POSTGRES_HOST: ${LLM_POSTGRES_HOST}
       LLM_POSTGRES_PORT: ${LLM_POSTGRES_PORT}
       LLM_POSTGRES_USERNAME: ${LLM_POSTGRES_USERNAME}
       LLM_POSTGRES_PASSWORD: ${LLM_POSTGRES_PASSWORD}

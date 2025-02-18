@@ -1,6 +1,7 @@
-from postgres import Postgres
 import os
 import dotenv
+from .postgres import Postgres
+
 
 env = os.getenv("ENV", "development")
 if env != "production":

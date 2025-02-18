@@ -1,7 +1,7 @@
 import re
-from system_logger import Logger
-from llm_handler import LLMHandler
-from template import PromptTemplate
+from .system_logger import Logger
+from .llm_handler import LLMHandler
+from .template import PromptTemplate
 
 logger = Logger("Insights Generator")
 

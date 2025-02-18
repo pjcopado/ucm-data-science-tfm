@@ -2,7 +2,7 @@ import subprocess
 import threading
 import queue
 import time
-from system_logger import Logger
+from .system_logger import Logger
 
 logger = Logger("LLM Handler")
 

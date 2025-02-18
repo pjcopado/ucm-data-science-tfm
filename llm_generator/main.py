@@ -98,7 +98,7 @@ def lifespan(app: FastAPI):
 #     app.state.llms.clear()
 
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(debug=True, lifespan=lifespan)
 
 
 @app.get("/", include_in_schema=False)

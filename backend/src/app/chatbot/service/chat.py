@@ -24,7 +24,7 @@ class ChatService:
 
     async def construct_query(self, prompt: str):
         # send prompt to llm and receive query
-        query_dict = await self.llm_api_service.construct_query(user_question=prompt, user_instruction="")
+        query_dict = await self.llm_api_service.construct_query(user_question=prompt, user_instruction=None)
         print(query_dict)
 
         # TODO call query model

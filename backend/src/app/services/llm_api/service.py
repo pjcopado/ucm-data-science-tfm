@@ -7,10 +7,9 @@ from src.app.core.config import settings
 
 class LLMApiService:
     def __init__(self):
-        url = "http://localhost:8001"
-        self.client = httpx.Client(base_url=url)
+        self.client = httpx.Client(base_url=settings.LLM_API_URL)
 
-    async def construct_query(self, user_question: str, user_instruction: str):
+    async def construct_query(self, user_question: str, user_instruction: str | None = None):
         url = "/sql_generator"
         body = {
             "user_question": user_question,

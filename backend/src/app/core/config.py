@@ -55,6 +55,9 @@ class Settings(BaseSettings):
     EXTERNAL_POSTGRES_PORT: int
     EXTERNAL_POSTGRES_DB: str
 
+    # LLM API
+    LLM_API_URL: str
+
     @property
     def set_backend_app_attributes(self) -> dict[str, str | bool | None]:
         """

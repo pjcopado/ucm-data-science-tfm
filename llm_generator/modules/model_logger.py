@@ -3,9 +3,7 @@ import dotenv
 from .postgres import Postgres
 
 
-env = os.getenv("ENV", "development")
-if env != "production":
-    dotenv.load_dotenv(".env.docker")
+dotenv.load_dotenv()
 
 
 class ModelLogger:

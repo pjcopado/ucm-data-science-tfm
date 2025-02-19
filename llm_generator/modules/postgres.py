@@ -311,7 +311,7 @@ class Postgres:
                 is_correct,
                 {column},
                 ABS({column} <#> %(embedding)s::vector) AS similarity
-            FROM logs;
+            FROM logs
         """
 
         where_clause = (

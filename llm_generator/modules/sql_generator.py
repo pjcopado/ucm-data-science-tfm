@@ -80,7 +80,6 @@ class SQLQueryGenerator:
             while attempts < self.max_attempts:
                 if not errors:
                     user_input_embedding = self.embedder.embed_text(user_input)
-                    """
                     similarity_list = self.model_logger.log_similarity_search(
                         user_input_embedding,
                         top_k=3,
@@ -89,7 +88,7 @@ class SQLQueryGenerator:
                         threshold=0.90,
                     )
                     print(similarity_list)
-                    """
+
                     prompt = self.prompt_template.generate_prompt(
                         "user",
                         self.user_prompt_file,
@@ -141,11 +140,9 @@ class SQLQueryGenerator:
                 if validation_results["status"] == "OK":
                     user_input_embedding = self.embedder.embed_text(user_input)
                     query_embedding = self.embedder.embed_text(query)
-                    """
                     confidence_score = self.model_logger.log_get_confidence_score(
                         query_embedding, compare="query", threshold=0.85
                     )
-                    """
 
                     # Write into log
                     logger.info("Writing into log...")
@@ -162,13 +159,13 @@ class SQLQueryGenerator:
 
                     status = "insight_completed"
 
-                    logger.info(f"uuid: {uuid}")
+                    logger.info(f"id: {uuid}")
                     logger.info(f"query: {query}")
                     logger.info(f"confidence_score: {confidence_score}")
                     logger.info(f"status: {status}")
 
                     response = {
-                        "uuid": uuid,
+                        "id": uuid,
                         "query": query,
                         "confidence_score": confidence_score,
                         "status": status,
@@ -186,7 +183,7 @@ class SQLQueryGenerator:
             # "A valid query could not be generated. Can you rephrase the question?"
             status = "query_failed"
             response = {
-                "uuid": uuid,
+                "id": uuid,
                 "query": None,
                 "confidence_score": None,
                 "status": status,
@@ -199,7 +196,7 @@ class SQLQueryGenerator:
         except Exception as e:
             status = "query_failed"
             response = {
-                "uuid": None,
+                "id": None,
                 "query": None,
                 "confidence_score": None,
                 "status": status,

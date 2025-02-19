@@ -16,16 +16,14 @@ class ModelLogger:
         Inicializa la clase Logger para manejar los logs de evaluación.
         """
         llm_db_config = {
-            "host": "localhost",
-            "port": "5434",
-            "database": "evaluation_log",
-            "user": "postgres",
-            "password": "postgres",
+            "host": os.getenv("LLM_POSTGRES_HOST"),
+            "port": os.getenv("LLM_POSTGRES_PORT"),
+            "database": os.getenv("LLM_POSTGRES_DB"),
+            "user": os.getenv("LLM_POSTGRES_USERNAME"),
+            "password": os.getenv("LLM_POSTGRES_PASSWORD"),
         }
         self.evaluation_log = Postgres(llm_db_config)
         print(f"llm_db_config: {llm_db_config}")
-
-        print(os.getenv("LLM_POSTGRES_USERNAME"))
 
     def _to_vector_format(self, emb):
         """

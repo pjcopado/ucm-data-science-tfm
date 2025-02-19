@@ -41,78 +41,94 @@ class ChatService:
     async def construct_insight(self, prompt: str, query: str, query_response: str):
         return await self.llm_api_service.get_insights_response(user_question=prompt, query=query, query_result=query_response)
 
-    async def ask(self, prompt: str) -> dict[str, str | None]:
+    async def ask(self, prompt: str, step_1: str, step_2: str, step_3: str) -> dict[str, str | None]:
+        response = dict()
+
         loguru.logger.info(f"Constructing query... prompt: {prompt}")
-        response_1 = await self.construct_query(prompt)
+        if step_1 == "fail":
+            response_1 = {"status": enums.ChatMessageResponseStatusEnum.QUERY_FAILED}
+        elif step_1 == "pass":
+            response_1 = {
+                "id": uuid.uuid4(),
+                "query": "SELECT NOW()",
+                "confidence_score": 0.9,
+                "status": enums.ChatMessageResponseStatusEnum.QUERY_COMPLETED,
+            }
+        else:
+            response_1 = await self.construct_query(prompt)
         loguru.logger.info(f"Query response: {response_1}")
         status = response_1.get("status")
+        response.update(response_1)
+
         if status != enums.ChatMessageResponseStatusEnum.QUERY_COMPLETED:
-            raise ChatError(status=enums.ChatMessageResponseStatusEnum.QUERY_FAILED, detail="Query construction failed")
-        llm_response_id = response_1.get("id")
+            return response
         query = response_1.get("query")
-        confidence_score = response_1.get("confidence_score")
 
         loguru.logger.info(f"Querying external database... query: {query}")
-        response_2 = await self.query_external_db(query)
+        if step_2 == "fail":
+            response_2 = {"status": enums.ChatMessageResponseStatusEnum.QUERY_EXECUTION_FAILED}
+        elif step_2 == "pass":
+            response_2 = {
+                "query_response": "This is a query response",
+                "status": enums.ChatMessageResponseStatusEnum.QUERY_EXECUTION_COMPLETED,
+            }
+        else:
+            response_2 = await self.query_external_db(query)
         loguru.logger.info(f"Query response: {response_2}")
         status = response_2.get("status")
+        response.update(response_2)
         if status != enums.ChatMessageResponseStatusEnum.QUERY_EXECUTION_COMPLETED:
-            raise ChatError(status=enums.ChatMessageResponseStatusEnum.QUERY_EXECUTION_FAILED, detail="Query execution failed")
+            return response_2
         query_response = response_2.get("query_response")
 
         loguru.logger.info(f"Constructing insight... prompt: {prompt}, query: {query}, query_response: {query_response}")
-        response_3 = await self.construct_insight(prompt, query, query_response)
+        if step_3 == "fail":
+            response_3 = {"status": enums.ChatMessageResponseStatusEnum.INSIGHT_FAILED}
+        elif step_3 == "pass":
+            response_3 = {
+                "insights_response": "This is an insights response",
+                "query_explanation": "This is a query explanation",
+                "status": enums.ChatMessageResponseStatusEnum.INSIGHT_COMPLETED,
+            }
+        else:
+            response_3 = await self.construct_insight(prompt, query, query_response)
         loguru.logger.info(f"Insight response: {response_3}")
+        response.update(response_3)
         status = response_3.get("status")
-        if status != enums.ChatMessageResponseStatusEnum.INSIGHT_COMPLETED:
-            raise ChatError(status=enums.ChatMessageResponseStatusEnum.INSIGHT_FAILED, detail="Insight construction failed")
-        insights_response = response_3.get("insights_response")
-        query_explanation = response_3.get("query_explanation")
-
-        response = {
-            "llm_response_id": llm_response_id,
-            "query": query,
-            "confidence_score": confidence_score,
-            "query_response": query_response,
-            "query_explanation": query_explanation,
-            "insights_response": insights_response,
-        }
 
         return response
 
-    async def create_message(self, obj_in: sch.ChatMessageCreateRequestSch, chat_id: uuid.UUID):
+    async def create_message(
+        self,
+        obj_in: sch.ChatMessageCreateRequestSch,
+        chat_id: uuid.UUID,
+        step_1: str = None,
+        step_2: str = None,
+        step_3: str = None,
+    ):
         try:
-            response = await self.ask(obj_in.question)
+            response = await self.ask(obj_in.question, step_1, step_2, step_3)
             loguru.logger.info(response)
-            status = enums.ChatMessageResponseStatusEnum.COMPLETED
-        except ChatError as e:
-            response = dict()
-            status = e.status
-            loguru.logger.error(f"Chat error: {e}")
+            status = response.pop("status")
+            if status == enums.ChatMessageResponseStatusEnum.INSIGHT_COMPLETED:
+                status = enums.ChatMessageResponseStatusEnum.COMPLETED
         except Exception as e:
             response = dict()
             status = enums.ChatMessageResponseStatusEnum.ERROR
             loguru.logger.error(f"Exception: {e}")
-        finally:
-            llm_response_id = response.get("llm_response_id")
-            query = response.get("query")
-            confidence_score = response.get("confidence_score")
-            query_response = response.get("query_response")
-            insights_response = response.get("insights_response")
-            query_explanation = response.get("query_explanation")
 
-            obj_in_ = sch.ChatMessageCreateSch(
-                question=obj_in.question,
-                llm_response_id=llm_response_id,
-                query=query,
-                confidence_score=confidence_score,
-                query_explanation=query_explanation,
-                query_response=query_response,
-                response=insights_response,
-                status=status,
-            )
-            loguru.logger.info(f"Creating chat message: {obj_in_} for chat_id: {chat_id}")
-            return await self.chat_message_repository.create(obj_in=obj_in_, chat_id=chat_id)
+        obj_in_ = sch.ChatMessageCreateSch(
+            question=obj_in.question,
+            llm_response_id=response.get("id"),
+            query=response.get("query"),
+            confidence_score=response.get("confidence_score"),
+            query_explanation=response.get("query_explanation"),
+            query_response=response.get("query_response"),
+            response=response.get("insights_response"),
+            status=status,
+        )
+        loguru.logger.info(f"Creating chat message: {obj_in_} for chat_id: {chat_id}")
+        return await self.chat_message_repository.create(obj_in=obj_in_, chat_id=chat_id)
 
     async def update_message(self, obj_db: models.ChatMessageModel, obj_in: sch.ChatMessageUpdateSch):
         await self.llm_api_service.validate_answer(question_id=obj_db.llm_response_id, is_valid=obj_in.is_valid)

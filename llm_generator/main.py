@@ -72,7 +72,11 @@ class SqlGeneratorResponse(BaseModel):
     status: str
 
 
-@app.post("/sql_generator", response_model=SqlGeneratorResponse, tags=["SQL Generator"])
+@app.post(
+    "/sql_generator",
+    response_model=SqlGeneratorResponse,
+    tags=["SQL Generator"],
+)
 def generate_sql(request: Request, obj_in: SqlGeneratorRequest):
     sql_generator: SQLQueryGenerator = request.app.state.llms["sql_generator"]
     response = sql_generator.generate_sql_query(
@@ -88,7 +92,11 @@ class UpdateSqlResponse(BaseModel):
     status: str
 
 
-@app.patch("/sql_generator/{id}", response_model=UpdateSqlResponse,tags=["SQL Generator"])
+@app.patch(
+    "/sql_generator/{id}",
+    response_model=UpdateSqlResponse,
+    tags=["SQL Generator"],
+)
 def update_sql(
     request: Request,
     id: uuid.UUID,
@@ -110,12 +118,16 @@ class InsightGeneratorRequest(BaseModel):
 
 
 class InsightGeneratorResponse(BaseModel):
-    insight_response: Optional[str] = None
+    insights_response: Optional[str] = None
     query_explanation: Optional[str] = None
     status: str
 
 
-@app.post("/insight_generator", response_model=InsightGeneratorResponse, tags=["Insight Generator"])
+@app.post(
+    "/insight_generator",
+    response_model=InsightGeneratorResponse,
+    tags=["Insight Generator"],
+)
 def generate_insight(request: Request, obj_in: InsightGeneratorRequest):
     insight_generator: InsightGenerator = request.app.state.llms["insight_generator"]
     response = insight_generator.generate_response(

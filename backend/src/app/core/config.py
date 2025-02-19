@@ -49,14 +49,14 @@ class Settings(BaseSettings):
     IS_DB_FORCE_ROLLBACK: bool = False
 
     # EXTERNAL DB SETTINGS
-    EXTERNAL_POSTGRES_USERNAME: str
-    EXTERNAL_POSTGRES_PASSWORD: str
-    EXTERNAL_POSTGRES_HOST: str
-    EXTERNAL_POSTGRES_PORT: int
-    EXTERNAL_POSTGRES_DB: str
+    EXTERNAL_POSTGRES_USERNAME: str = "postgres"
+    EXTERNAL_POSTGRES_PASSWORD: str = "postgres"
+    EXTERNAL_POSTGRES_HOST: str = "localhost"
+    EXTERNAL_POSTGRES_PORT: int = 5432
+    EXTERNAL_POSTGRES_DB: str = "sandoz"
 
     # LLM API
-    LLM_API_URL: str
+    LLM_API_URL: str = "http://localhost:5001"
 
     @property
     def set_backend_app_attributes(self) -> dict[str, str | bool | None]:

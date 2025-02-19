@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Body, status, Depends
+import typing as t
+
+from fastapi import APIRouter, Body, Query, status, Depends
 from fastapi_pagination import Page
 from fastapi_pagination.ext.sqlalchemy import paginate as sqla_paginate
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -40,13 +42,16 @@ async def create_message(
     chat_message_repository: repository.ChatMessageRepository = Depends(
         get_repository(repo_type=repository.ChatMessageRepository)
     ),
+    step_1: t.Literal["pass", "fail"] | None = Query(None),  # for debugging purposes
+    step_2: t.Literal["pass", "fail"] | None = Query(None),  # for debugging purposes
+    step_3: t.Literal["pass", "fail"] | None = Query(None),  # for debugging purposes
 ):
     chat_service = service.ChatService(
         chat_repository=chat_repository,
         chat_message_repository=chat_message_repository,
         session_ext=session_ext,
     )
-    return await chat_service.create_message(obj_in=obj_in, chat_id=chat.id)
+    return await chat_service.create_message(obj_in=obj_in, chat_id=chat.id, step_1=step_1, step_2=step_2, step_3=step_3)
 
 
 @router.patch(

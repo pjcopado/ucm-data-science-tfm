@@ -73,7 +73,7 @@ class InsightGenerator:
             logger.info(f"status: {status}")
 
             response = {
-                "insight_response": answer,
+                "insights_response": answer,
                 "query_explanation": explanation,
                 "status": status,
             }
@@ -83,7 +83,7 @@ class InsightGenerator:
         except Exception as e:
             status = self.response_status_ko
             response = {
-                "insight_response": None,
+                "insights_response": None,
                 "query_explanation": None,
                 "status": status,
             }

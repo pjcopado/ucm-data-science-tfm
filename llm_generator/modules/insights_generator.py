@@ -66,14 +66,14 @@ class InsightGenerator:
             explanation = (
                 re.sub(r"\*\*", "", parts[1]).strip() if len(parts) > 1 else ""
             )
-            status = response_status_ok
+            status = self.response_status_ok
 
             logger.info(f"insights_reponse: {answer}")
             logger.info(f"query_explanation: {explanation}")
             logger.info(f"status: {status}")
 
             response = {
-                "insights_reponse": answer,
+                "insight_response": answer,
                 "query_explanation": explanation,
                 "status": status,
             }
@@ -81,11 +81,11 @@ class InsightGenerator:
             return response
 
         except Exception as e:
-            status = response_status_ko
+            status = self.response_status_ko
             response = {
-                "insights_reponse": None,
+                "insight_response": None,
                 "query_explanation": None,
-                "status": response_status_ko,
+                "status": status,
             }
             logger.error(e)
             return e, response

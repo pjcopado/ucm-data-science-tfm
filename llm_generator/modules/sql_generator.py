@@ -99,7 +99,7 @@ class SQLQueryGenerator:
                         user_input,
                         user_instructions,
                         db_schema,
-                        # similarity_list=similarity_list,
+                        similarity_list=similarity_list,
                     )
 
                 elif errors and attempts == 1:
@@ -159,7 +159,7 @@ class SQLQueryGenerator:
                         execution_time,
                     )
 
-                    status = response_status_ok
+                    status = self.response_status_ok
 
                     logger.info(f"id: {uuid}")
                     logger.info(f"query: {query}")
@@ -183,7 +183,7 @@ class SQLQueryGenerator:
                 logger.info(f"Retrying... ({attempts}/{self.max_attempts})")
 
             # "A valid query could not be generated. Can you rephrase the question?"
-            status = response_status_ko
+            status = self.response_status_ko
             response = {
                 "id": uuid,
                 "query": None,
@@ -196,7 +196,7 @@ class SQLQueryGenerator:
             return response
 
         except Exception as e:
-            status = response_status_ko
+            status = self.response_status_ko
             response = {
                 "id": None,
                 "query": None,

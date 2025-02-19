@@ -35,23 +35,17 @@ db_config = {
 def lifespan(app: FastAPI):
     app.state.llms = dict()
 
-    # Initialize SQLQueryGenerator
     sql_generator = SQLQueryGenerator(
         model_name=MODEL_NAME, db_config=db_config, max_attempts=3
     )
-    # sql_generator = 1
     app.state.llms["sql_generator"] = sql_generator
 
-    # Initialize InsightGenerator
     insight_generator = InsightGenerator()
-    # insight_generator = 1
     app.state.llms["insight_generator"] = insight_generator
 
-    # Initialize M
     model_logger = ModelLogger()
     app.state.llms["model_logger"] = model_logger
 
-    # Clear all models on shutdown
     yield
     app.state.llms.clear()
 

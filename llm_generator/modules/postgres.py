@@ -1,4 +1,6 @@
 import psycopg2
+import psycopg2.extras
+import uuid
 
 
 class Postgres:
@@ -10,6 +12,9 @@ class Postgres:
             db_config (dict): Configuración de conexión a la base de datos.
         """
         self.db_config = db_config
+
+        # Option to could write UUID objects in PostgreSQL
+        psycopg2.extras.register_uuid()
 
     def execute_query(self, query):
         try:
@@ -218,7 +223,7 @@ class Postgres:
         execution_time,
     ):
         query = """
-            INSERT INTO logs (uuid, user_input, user_input_embedding, query, query_embedding, is_correct, execution_time, created_at)
+            INSERT INTO logs (id, user_input, user_input_embedding, query, query_embedding, is_correct, execution_time, created_at)
             VALUES (%s, %s, %s, %s, %s, %s, %s, NOW())
         """
 

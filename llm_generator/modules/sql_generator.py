@@ -146,7 +146,6 @@ class SQLQueryGenerator:
 
                     # Write into log
                     logger.info("Writing into log...")
-                    """
                     self.model_logger.log_evaluation(
                         uuid,
                         user_input,
@@ -155,7 +154,6 @@ class SQLQueryGenerator:
                         query_embedding,
                         execution_time,
                     )
-                    """
 
                     status = "insight_completed"
 

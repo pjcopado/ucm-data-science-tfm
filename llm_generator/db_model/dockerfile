@@ -38,7 +38,11 @@ COPY logs.sql /app/sql/logs.sql
 RUN chmod 644 /docker-entrypoint-initdb.d/init.sql /app/sql/*.sql
 
 # Configura el puerto por defecto para Postgres (puedes cambiarlo si 5432 está en uso)
-# ENV PGPORT=5434
+ENV PGPORT=5434
 
 # Retorna al usuario por defecto "postgres" que usa la imagen oficial
 USER postgres
+
+# Health check to ensure PostgreSQL is running
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD pg_isready -U postgres || exit 1

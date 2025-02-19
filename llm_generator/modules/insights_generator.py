@@ -18,6 +18,10 @@ class InsightGenerator:
         self.system_prompt_file = "system_prompt.txt"
         self.user_prompt_file = "user_prompt.txt"
 
+        # Response status
+        self.response_status_ok = "insight_completed"
+        self.response_status_ko = "insight_failed"
+
         # Cargar el modelo
         system_prompt = str(
             self.prompt_template.generate_prompt("system", self.system_prompt_file)
@@ -62,14 +66,14 @@ class InsightGenerator:
             explanation = (
                 re.sub(r"\*\*", "", parts[1]).strip() if len(parts) > 1 else ""
             )
-            status = "insight_completed"
+            status = self.response_status_ok
 
             logger.info(f"insights_reponse: {answer}")
             logger.info(f"query_explanation: {explanation}")
             logger.info(f"status: {status}")
 
             response = {
-                "insights_reponse": answer,
+                "insight_response": answer,
                 "query_explanation": explanation,
                 "status": status,
             }
@@ -77,8 +81,12 @@ class InsightGenerator:
             return response
 
         except Exception as e:
-            status = "insight_failed"
-            response = {"status": status}
+            status = self.response_status_ko
+            response = {
+                "insight_response": None,
+                "query_explanation": None,
+                "status": status,
+            }
             logger.error(e)
             return e, response
 

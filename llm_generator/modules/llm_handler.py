@@ -6,6 +6,7 @@ from .system_logger import Logger
 
 logger = Logger("LLM Handler")
 
+
 class LLMHandler:
     def __init__(
         self,
@@ -18,7 +19,7 @@ class LLMHandler:
         prompt_cache="./data/prompt_cahe.bin"
     ):
         
-        self.model_path = f"/code/llm_generator/models/gguf/{model_name}.gguf"
+        self.model_path = f"llm_generator/models/gguf/{model_name}.gguf"
             
         cmd = [
             "llama-cli",

@@ -24,6 +24,7 @@ class SQLQueryGenerator:
             max_attempts (int): Número máximo de intentos para corregir errores.
         """
         # Instanciar Postgres y cargar el esquema
+        print(f"db_config: {db_config}")
         self.postgres = Postgres(db_config)
         logger.info("Fetching table definitions from the database...")
         self.db_schema = self.postgres.get_db_schema()
@@ -43,6 +44,10 @@ class SQLQueryGenerator:
         self.user_prompt_file = "user_prompt.txt"
         self.system_error_prompt_file = "system_error_prompt.txt"
         self.user_error_prompt_file = "user_error_prompt.txt"
+
+        # Response status
+        self.response_status_ok = "query_completed"
+        self.response_status_ko = "query_failed"
 
         # Cargar el modelo
         system_prompt = str(
@@ -87,7 +92,8 @@ class SQLQueryGenerator:
                         status="OK",
                         threshold=0.90,
                     )
-                    print(similarity_list)
+                    logger.info(f"similarity_list: {similarity_list}")
+
                     prompt = self.prompt_template.generate_prompt(
                         "user",
                         self.user_prompt_file,
@@ -154,15 +160,15 @@ class SQLQueryGenerator:
                         execution_time,
                     )
 
-                    status = "insight_completed"
+                    status = self.response_status_ok
 
-                    logger.info(f"uuid: {uuid}")
+                    logger.info(f"id: {uuid}")
                     logger.info(f"query: {query}")
                     logger.info(f"confidence_score: {confidence_score}")
                     logger.info(f"status: {status}")
 
                     response = {
-                        "uuid": uuid,
+                        "id": uuid,
                         "query": query,
                         "confidence_score": confidence_score,
                         "status": status,
@@ -178,9 +184,9 @@ class SQLQueryGenerator:
                 logger.info(f"Retrying... ({attempts}/{self.max_attempts})")
 
             # "A valid query could not be generated. Can you rephrase the question?"
-            status = "query_failed"
+            status = self.response_status_ko
             response = {
-                "uuid": uuid,
+                "id": uuid,
                 "query": None,
                 "confidence_score": None,
                 "status": status,
@@ -191,9 +197,9 @@ class SQLQueryGenerator:
             return response
 
         except Exception as e:
-            status = "query_failed"
+            status = self.response_status_ko
             response = {
-                "uuid": None,
+                "id": None,
                 "query": None,
                 "confidence_score": None,
                 "status": status,

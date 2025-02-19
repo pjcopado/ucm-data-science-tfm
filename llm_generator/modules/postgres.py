@@ -1,4 +1,6 @@
 import psycopg2
+import psycopg2.extras
+import uuid
 
 
 class Postgres:
@@ -10,6 +12,9 @@ class Postgres:
             db_config (dict): Configuración de conexión a la base de datos.
         """
         self.db_config = db_config
+
+        # Option to could write UUID objects in PostgreSQL
+        psycopg2.extras.register_uuid()
 
     def execute_query(self, query):
         try:
@@ -34,7 +39,6 @@ class Postgres:
         WHERE table_schema = 'public'
         ORDER BY table_name, ordinal_position;
         """
-        print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
 
         try:
             with psycopg2.connect(**self.db_config) as conn:
@@ -218,7 +222,7 @@ class Postgres:
         execution_time,
     ):
         query = """
-            INSERT INTO logs (uuid, user_input, user_input_embedding, query, query_embedding, is_correct, execution_time, created_at)
+            INSERT INTO logs (id, user_input, user_input_embedding, query, query_embedding, is_correct, execution_time, created_at)
             VALUES (%s, %s, %s, %s, %s, %s, %s, NOW())
         """
 
@@ -249,12 +253,16 @@ class Postgres:
         query = """
             UPDATE logs
             SET is_correct = %s
-            WHERE uuid = %s
+            WHERE id = %s;
         """
         try:
             with psycopg2.connect(**self.db_config) as conn:
                 with conn.cursor() as cur:
                     cur.execute(query, (is_correct, uuid))
+                    if cur.rowcount > 0:
+                        return True
+                    else:
+                        return False
         except Exception as e:
             raise RuntimeError(f"Error updating is_correct: {e}")
 
@@ -336,7 +344,7 @@ class Postgres:
             ) AS sub
             WHERE {where_clause}
             ORDER BY similarity DESC
-            LIMIT %(top_k)s
+            LIMIT %(top_k)s;
         """
 
         results = []

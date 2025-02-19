@@ -47,7 +47,6 @@ def lifespan(app: FastAPI):
     app.state.llms["model_logger"] = model_logger
 
     yield
-
     app.state.llms.clear()
 
 
@@ -84,7 +83,12 @@ def generate_sql(request: Request, obj_in: SqlGeneratorRequest):
     return response
 
 
-@app.patch("/sql_generator/{id}", tags=["Update SQL"])
+# Update SQL
+class UpdateSqlResponse(BaseModel):
+    status: str
+
+
+@app.patch("/sql_generator/{id}", response_model=UpdateSqlResponse,tags=["SQL Generator"])
 def update_sql(
     request: Request,
     id: uuid.UUID,
@@ -92,7 +96,7 @@ def update_sql(
 ):
     model_logger: ModelLogger = request.app.state.llms["model_logger"]
     response = model_logger.user_query_check(
-        id,
+        str(id),
         is_correct,
     )
     return response
@@ -101,24 +105,28 @@ def update_sql(
 # Insight Generator
 class InsightGeneratorRequest(BaseModel):
     user_question: str
+    query: str
     query_result: str
 
 
 class InsightGeneratorResponse(BaseModel):
-    insights_response: Optional[str] = None
+    insight_response: Optional[str] = None
     query_explanation: Optional[str] = None
     status: str
 
 
-@app.post(
-    "/insight_generator",
-    response_model=InsightGeneratorResponse,
-    tags=["Insight Generator"],
-)
+@app.post("/insight_generator", response_model=InsightGeneratorResponse, tags=["Insight Generator"])
 def generate_insight(request: Request, obj_in: InsightGeneratorRequest):
     insight_generator: InsightGenerator = request.app.state.llms["insight_generator"]
     response = insight_generator.generate_response(
         obj_in.user_question,
+        obj_in.query,
         obj_in.query_result,
     )
     return response
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(app, host="0.0.0.0", port=8001)

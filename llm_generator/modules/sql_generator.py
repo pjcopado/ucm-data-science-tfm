@@ -61,7 +61,7 @@ class SQLQueryGenerator:
                 self.system_prompt_file,
                 user_input="",
                 user_instructions="",
-                db_schema="",
+                db_schema=self.db_schema_and_relationships,
             )
         )
         self.llm = LLMHandler(model_name, system_prompt)

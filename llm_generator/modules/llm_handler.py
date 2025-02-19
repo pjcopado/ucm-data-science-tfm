@@ -13,7 +13,7 @@ class LLMHandler:
         model_name,
         system_prompt,
         n_ctx=4096,
-        n_gpu_layers=16,
+        n_gpu_layers=50,
         temperature=0,
         top_p=0.95,
         prompt_cache="./data/prompt_cahe.bin"

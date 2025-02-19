@@ -5,12 +5,12 @@ from .system_logger import Logger
 logger = Logger("Embedder")
 
 class EmbeddingManager:
-    def __init__(self, model_name="all-MiniLM-L12-v2", device="cpu"):
+    def __init__(self, model_name="all-MiniLM-L12-v2", device="cuda"):
 
-        if device:
-            self.device = device 
-        else:
+        if device == "cuda":
             self.device = "cuda" if torch.cuda.is_available() else "auto"
+        else:
+            self.device = device
         
         self.model = SentenceTransformer(model_name, device=self.device)
     

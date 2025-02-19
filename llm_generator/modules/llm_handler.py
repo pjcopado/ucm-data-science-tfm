@@ -6,6 +6,7 @@ from .system_logger import Logger
 
 logger = Logger("LLM Handler")
 
+
 class LLMHandler:
     def __init__(
         self,

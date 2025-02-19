@@ -1,5 +1,5 @@
 -- Crear la base de datos si no existe
-CREATE DATABASE evaluation_log;
+-- CREATE DATABASE evaluation_log;
 
 -- Conectar a la base de datos
 \c evaluation_log;

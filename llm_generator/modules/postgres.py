@@ -39,7 +39,6 @@ class Postgres:
         WHERE table_schema = 'public'
         ORDER BY table_name, ordinal_position;
         """
-        print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
 
         try:
             with psycopg2.connect(**self.db_config) as conn:
@@ -254,12 +253,16 @@ class Postgres:
         query = """
             UPDATE logs
             SET is_correct = %s
-            WHERE uuid = %s
+            WHERE id = %s;
         """
         try:
             with psycopg2.connect(**self.db_config) as conn:
                 with conn.cursor() as cur:
                     cur.execute(query, (is_correct, uuid))
+                    if cur.rowcount > 0:
+                        return True
+                    else:
+                        return False
         except Exception as e:
             raise RuntimeError(f"Error updating is_correct: {e}")
 

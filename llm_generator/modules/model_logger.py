@@ -3,10 +3,6 @@ import sys
 import dotenv
 from .postgres import Postgres
 
-
-# Add the path to the sys.path
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-
 dotenv.load_dotenv()
 
 
@@ -23,7 +19,7 @@ class ModelLogger:
             "password": os.getenv("LLM_POSTGRES_PASSWORD"),
         }
         self.evaluation_log = Postgres(llm_db_config)
-        print(f"llm_db_config: {llm_db_config}")
+        logger.info(f"llm_db_config: {llm_db_config}")
 
     def _to_vector_format(self, emb):
         """
@@ -82,8 +78,18 @@ class ModelLogger:
     def user_query_check(self, uuid, is_correct):
         """
         Marca una entrada en el log como correcta o incorrecta.
+        Args:
+            uuid (str): El UUID del registro a actualizar.
+            is_correct (bool): El nuevo valor para el campo is_correct.
         """
-        self.evaluation_log.update_is_correct(uuid, is_correct)
+        try:
+            is_update = self.evaluation_log.update_is_correct(uuid, is_correct)
+            if is_update:
+                return {status: "update_completed"}
+            else:
+                return {status: "update_failed"}
+        except Exception as e:
+            return e, {status: "update_failed"}
 
     def log_similarity_search(
         self, embedding, top_k=3, compare="user_input", status="OK", threshold=0.0

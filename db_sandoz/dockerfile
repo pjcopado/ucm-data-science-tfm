@@ -32,7 +32,11 @@ COPY data/sample-market_mapping.csv /app/sql/data/sample-market_mapping.csv
 RUN chmod 644 /docker-entrypoint-initdb.d/init.sql /app/sql/*.sql /app/sql/data/*.csv
 
 # # Configura el puerto por defecto para Postgres (puedes cambiarlo si 5432 está en uso)
-# ENV PGPORT=5433
+ENV PGPORT=5435
 
 # # Retorna al usuario por defecto "postgres" que usa la imagen oficial
 USER postgres
+
+# Health check to ensure PostgreSQL is running
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD pg_isready -U postgres || exit 1

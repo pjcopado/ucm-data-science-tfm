@@ -24,6 +24,7 @@ class SQLQueryGenerator:
             max_attempts (int): Número máximo de intentos para corregir errores.
         """
         # Instanciar Postgres y cargar el esquema
+        logger.info(f"db_config: {db_config}")
         self.postgres = Postgres(db_config)
         logger.info("Fetching table definitions from the database...")
         self.db_schema = self.postgres.get_db_schema()
@@ -91,7 +92,7 @@ class SQLQueryGenerator:
                         status="OK",
                         threshold=0.90,
                     )
-                    print(similarity_list)
+                    logger.info(f"similarity_list: {similarity_list}")
 
                     prompt = self.prompt_template.generate_prompt(
                         "user",

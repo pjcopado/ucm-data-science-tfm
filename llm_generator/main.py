@@ -75,15 +75,12 @@ class SqlGeneratorResponse(BaseModel):
 @app.post("/sql_generator", response_model=SqlGeneratorResponse, tags=["SQL Generator"])
 def generate_sql(request: Request, obj_in: SqlGeneratorRequest):
     sql_generator = request.app.state.llms["sql_generator"]
-    try:
-        response = sql_generator.generate_sql_query(
-            obj_in.user_question,
-            obj_in.user_instruction,
-            obj_in.db_schema,
-        )
-        return response
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    response = sql_generator.generate_sql_query(
+        obj_in.user_question,
+        obj_in.user_instruction,
+        obj_in.db_schema,
+    )
+    return response
 
 
 # Update SQL
@@ -94,14 +91,11 @@ def update_sql(
     is_correct: bool = Body(..., embed=True),
 ):
     model_logger = request.app.state.llms["model_logger"]
-    try:
-        response = model_logger.user_query_check(
-            id,
-            is_correct,
-        )
-        return response
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    response = model_logger.user_query_check(
+        id,
+        is_correct,
+    )
+    return response
 
 
 # Insight Generator
@@ -124,15 +118,12 @@ class InsightGeneratorResponse(BaseModel):
 )
 def generate_insight(request: Request, obj_in: InsightGeneratorRequest):
     insight_generator = request.app.state.llms["insight_generator"]
-    try:
-        response = insight_generator.generate_response(
-            obj_in.user_question,
-            obj_in.query_generated,
-            obj_in.query_result,
-        )
-        return response
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    response = insight_generator.generate_response(
+        obj_in.user_question,
+        obj_in.query_generated,
+        obj_in.query_result,
+    )
+    return response
 
 
 if __name__ == "__main__":

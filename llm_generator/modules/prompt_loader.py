@@ -6,7 +6,7 @@ logger = Logger("Prompt Loader")
 
 class PromptLoader:
     def __init__(self,
-                 prompt_dir="/code/llm_generator/prompts"):
+                 prompt_dir="/llm_generator/prompts"):
         """
         Inicializa el cargador de prompts.
         Args:

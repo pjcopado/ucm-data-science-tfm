@@ -1,5 +1,5 @@
 -- Crear la base de datos si no existe
-CREATE DATABASE sandoz;
+-- CREATE DATABASE sandoz;
 
 -- Conectar a la base de datos
 \c sandoz;

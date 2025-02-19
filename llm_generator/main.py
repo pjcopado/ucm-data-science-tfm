@@ -5,7 +5,7 @@ import os
 import sys
 import dotenv
 
-from fastapi import FastAPI, HTTPException, Request, Body
+from fastapi import FastAPI, Request, Body
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 
@@ -16,7 +16,7 @@ from modules.sql_generator import SQLQueryGenerator
 from modules.insights_generator import InsightGenerator
 from modules.model_logger import ModelLogger
 
-dotenv.load_dotenv(".env.docker")
+dotenv.load_dotenv()
 
 # Model name
 MODEL_NAME = "llama-3-sqlcoder-8b-Q8_0"
@@ -35,24 +35,19 @@ db_config = {
 def lifespan(app: FastAPI):
     app.state.llms = dict()
 
-    # Initialize SQLQueryGenerator
     sql_generator = SQLQueryGenerator(
-        model_name=MODEL_NAME,
-        db_config=db_config,
-        max_attempts=3,
+        model_name=MODEL_NAME, db_config=db_config, max_attempts=3
     )
     app.state.llms["sql_generator"] = sql_generator
 
-    # Initialize InsightGenerator
     insight_generator = InsightGenerator()
     app.state.llms["insight_generator"] = insight_generator
 
-    # Initialize M
     model_logger = ModelLogger()
     app.state.llms["model_logger"] = model_logger
 
-    # Clear all models on shutdown
     yield
+
     app.state.llms.clear()
 
 
@@ -80,34 +75,27 @@ class SqlGeneratorResponse(BaseModel):
 
 @app.post("/sql_generator", response_model=SqlGeneratorResponse, tags=["SQL Generator"])
 def generate_sql(request: Request, obj_in: SqlGeneratorRequest):
-    sql_generator = request.app.state.llms["sql_generator"]
-    try:
-        response = sql_generator.generate_sql_query(
-            obj_in.user_question,
-            obj_in.user_instruction,
-            obj_in.db_schema,
-        )
-        return response
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    sql_generator: SQLQueryGenerator = request.app.state.llms["sql_generator"]
+    response = sql_generator.generate_sql_query(
+        obj_in.user_question,
+        obj_in.user_instruction,
+        obj_in.db_schema,
+    )
+    return response
 
 
-# Update SQL
 @app.patch("/sql_generator/{id}", tags=["Update SQL"])
 def update_sql(
     request: Request,
     id: uuid.UUID,
     is_correct: bool = Body(..., embed=True),
 ):
-    model_logger = request.app.state.llms["model_logger"]
-    try:
-        response = model_logger.user_query_check(
-            id,
-            is_correct,
-        )
-        return response
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    model_logger: ModelLogger = request.app.state.llms["model_logger"]
+    response = model_logger.user_query_check(
+        id,
+        is_correct,
+    )
+    return response
 
 
 # Insight Generator
@@ -117,7 +105,7 @@ class InsightGeneratorRequest(BaseModel):
 
 
 class InsightGeneratorResponse(BaseModel):
-    insight_response: Optional[str] = None
+    insights_response: Optional[str] = None
     query_explanation: Optional[str] = None
     status: str
 
@@ -128,18 +116,9 @@ class InsightGeneratorResponse(BaseModel):
     tags=["Insight Generator"],
 )
 def generate_insight(request: Request, obj_in: InsightGeneratorRequest):
-    insight_generator = request.app.state.llms["insight_generator"]
-    try:
-        response = insight_generator.generate_response(
-            obj_in.user_question,
-            obj_in.query_result,
-        )
-        return response
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-if __name__ == "__main__":
-    import uvicorn
-
-    uvicorn.run(app, host="0.0.0.0", port=8001)
+    insight_generator: InsightGenerator = request.app.state.llms["insight_generator"]
+    response = insight_generator.generate_response(
+        obj_in.user_question,
+        obj_in.query_result,
+    )
+    return response

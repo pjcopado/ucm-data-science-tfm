@@ -1,25 +1,24 @@
 import os
-import sys
-import dotenv
+import json
 from .postgres import Postgres
+from .system_logger import Logger
 
-dotenv.load_dotenv()
-
+logger = Logger("Model Logger")
 
 class ModelLogger:
     def __init__(self):
         """
         Inicializa la clase Logger para manejar los logs de evaluación.
         """
-        llm_db_config = {
-            "host": os.getenv("LLM_POSTGRES_HOST"),
-            "port": os.getenv("LLM_POSTGRES_PORT"),
-            "database": os.getenv("LLM_POSTGRES_DB"),
-            "user": os.getenv("LLM_POSTGRES_USERNAME"),
-            "password": os.getenv("LLM_POSTGRES_PASSWORD"),
+        self.db_config = {
+            "host": os.getenv("POSTGRES_LLM_HOST"),
+            "port": os.getenv("POSTGRES_LLM_PORT"),
+            "database": os.getenv("POSTGRES_LLM_DB"),
+            "user": os.getenv("POSTGRES_LLM_USER"),
+            "password": os.getenv("POSTGRES_LLM_PASSWORD"),
         }
-        self.evaluation_log = Postgres(llm_db_config)
-        print(f"llm_db_config: {llm_db_config}")
+        self.evaluation_log = Postgres(self.db_config)
+        logger.info(f"Initializing Model Logger: {json.dumps(self.db_config)}")
 
     def _to_vector_format(self, emb):
         """

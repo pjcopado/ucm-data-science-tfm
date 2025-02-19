@@ -157,15 +157,15 @@ class Postgres:
 
                     # Obtener ejemplos de datos por tabla y generar detalles del esquema
                     schema_details = []
+                    examples = {}
                     for table_name, columns in table_columns.items():
                         schema_details.append(f"TABLE: {table_name}")
-                        column_names = ", ".join(col[0] for col in columns)
-                        cur.execute(f"SELECT DISTINCT {column_names} FROM {table_name} LIMIT 5;")
-                        results = cur.fetchall()
+                        for col in columns:
+                            cur.execute(f"SELECT DISTINCT {col[0]} FROM {table_name} LIMIT 5;")
+                            examples[col[0]] = cur.fetchall()
 
                         for i, (column_name, data_type, description) in enumerate(columns):
-                            examples = [str(result[i]) for result in results]
-                            example_str = f", examples {examples}" if examples else ""
+                            example_str = f", examples {examples[column_name]}" if examples else ""
                             schema_details.append(
                                 f"  - {column_name}: {data_type}{example_str}"
                                 + (

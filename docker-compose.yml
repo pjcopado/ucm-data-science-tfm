@@ -55,7 +55,7 @@ services:
           devices:
             - driver: nvidia
               count: all
-              capabilities: [gpu]
+              capabilities: [ gpu ]
 
   postgres:
     container_name: chatbot-postgresql

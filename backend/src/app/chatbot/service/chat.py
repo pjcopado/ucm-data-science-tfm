@@ -45,7 +45,9 @@ class ChatService:
         response = dict()
 
         loguru.logger.info(f"Constructing query... prompt: {prompt}")
-        if step_1 == "fail":
+        if step_1 is "invalid":
+            response_1 = {"status": enums.ChatMessageResponseStatusEnum.QUERY_INVALID}
+        elif step_1 == "fail":
             response_1 = {"status": enums.ChatMessageResponseStatusEnum.QUERY_FAILED}
         elif step_1 == "pass":
             response_1 = {

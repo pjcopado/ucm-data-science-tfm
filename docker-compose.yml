@@ -11,7 +11,7 @@ services:
       POSTGRES_PORT: ${LLM_POSTGRES_PORT}
       POSTGRES_DB: ${LLM_POSTGRES_DB}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres-llm:/var/lib/postgresql/data
     ports:
       - 5434:5432
     command: -p 5434
@@ -20,7 +20,7 @@ services:
     build:
       context: ./llm_generator
       args:
-        GPU_TYPE: amd
+        GPU_TYPE: nvidia
     container_name: llm_handler
     depends_on:
       - llm_db
@@ -37,7 +37,7 @@ services:
       EXTERNAL_POSTGRES_PORT: ${EXTERNAL_POSTGRES_PORT}
       EXTERNAL_POSTGRES_DB: ${EXTERNAL_POSTGRES_DB}
     ports:
-      - "5001:5001" # Solo necesario si se accede desde fuera del contenedor
+      - 5001:5001 # Solo necesario si se accede desde fuera del contenedor
     # deploy:
     #  resources:
     #    reservations:
@@ -71,6 +71,7 @@ services:
       - backend/.env.docker
     depends_on:
       - postgres
+      - llm_app
 
   postgres-external:
     container_name: chatbot-postgresql-external
@@ -93,7 +94,7 @@ services:
     image: dpage/pgadmin4:8.1
     restart: always
     ports:
-      - "5050:80"
+      - 5050:80
     volumes:
       - pgadmin-local:/var/lib/pgadmin
     environment:
@@ -101,10 +102,11 @@ services:
       - PGADMIN_DEFAULT_PASSWORD=123456
 
 volumes:
-  postgres_data:
   pgadmin-local:
     external: true
   postgres-local:
+    external: true
+  postgres-llm:
     external: true
   postgres-external:
     external: true

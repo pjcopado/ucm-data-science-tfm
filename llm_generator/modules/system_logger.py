@@ -13,7 +13,7 @@ class Logger:
         if name is None:
             name = __name__  # Usa el nombre del módulo donde se instancia el logger
 
-        log_dir = "./output"
+        log_dir = "/code/llm_generator/output"
         log_file = os.path.join(log_dir, "app.log")
 
         # Ensure the log directory exists

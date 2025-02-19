@@ -1,5 +1,6 @@
 services:
   postgres-external:
+    container_name: external-postgresql
     image: postgres:16
     environment:
       POSTGRES_USER: ${EXTERNAL_POSTGRES_USERNAME}
@@ -15,6 +16,7 @@ services:
   llm_db:
     build:
       context: ./llm_generator/db_model
+    container_name: llm_db
     environment:
       POSTGRES_USER: ${POSTGRES_LLM_USER}
       POSTGRES_PASSWORD: ${POSTGRES_LLM_PASSWORD}
@@ -30,7 +32,7 @@ services:
     build:
       context: ./llm_generator
       args:
-        GPU_TYPE: amd
+        GPU_TYPE: nvidia
     container_name: llm_handler
     depends_on:
       - postgres-external

@@ -3,7 +3,6 @@ from contextlib import asynccontextmanager
 from typing import Optional
 import os
 import sys
-import dotenv
 
 from fastapi import FastAPI, Request, Body
 from fastapi.responses import RedirectResponse
@@ -15,8 +14,6 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from modules.sql_generator import SQLQueryGenerator
 from modules.insights_generator import InsightGenerator
 from modules.model_logger import ModelLogger
-
-dotenv.load_dotenv()
 
 # Model name
 MODEL_NAME = "llama-3-sqlcoder-8b-Q8_0"

@@ -1,16 +1,26 @@
 services:
+  postgres-external:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${EXTERNAL_POSTGRES_USERNAME}
+      POSTGRES_PASSWORD: ${EXTERNAL_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${EXTERNAL_POSTGRES_DB}
+    volumes:
+      - ./db_sandoz:/docker-entrypoint-initdb.d
+      - postgres-external:/var/lib/postgresql/data
+    ports:
+      - 5435:5432
+    command: -p 5435
+
   llm_db:
     build:
       context: ./llm_generator/db_model
-    container_name: llm_db
-    restart: unless-stopped
     environment:
-      POSTGRES_USER: ${LLM_POSTGRES_USERNAME}
-      POSTGRES_PASSWORD: ${LLM_POSTGRES_PASSWORD}
-      POSTGRES_HOST: ${LLM_POSTGRES_HOST}
-      POSTGRES_PORT: ${LLM_POSTGRES_PORT}
-      POSTGRES_DB: ${LLM_POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_LLM_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_LLM_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_LLM_DB}
     volumes:
+      - ./llm_generator/db_model:/docker-entrypoint-initdb.d
       - postgres-llm:/var/lib/postgresql/data
     ports:
       - 5434:5432
@@ -23,14 +33,15 @@ services:
         GPU_TYPE: amd
     container_name: llm_handler
     depends_on:
+      - postgres-external
       - llm_db
     environment:
       ENV: production
-      POSTGRES_USER: ${LLM_POSTGRES_USERNAME}
-      POSTGRES_PASSWORD: ${LLM_POSTGRES_PASSWORD}
-      POSTGRES_HOST: ${LLM_POSTGRES_HOST}
-      POSTGRES_PORT: ${LLM_POSTGRES_PORT}
-      POSTGRES_DB: ${LLM_POSTGRES_DB}
+      POSTGRES_LLM_USER: ${POSTGRES_LLM_USER}
+      POSTGRES_LLM_PASSWORD: ${POSTGRES_LLM_PASSWORD}
+      POSTGRES_LLM_HOST: ${POSTGRES_LLM_HOST}
+      POSTGRES_LLM_PORT: ${POSTGRES_LLM_PORT}
+      POSTGRES_LLM_DB: ${POSTGRES_LLM_DB}
       EXTERNAL_POSTGRES_USERNAME: ${EXTERNAL_POSTGRES_USERNAME}
       EXTERNAL_POSTGRES_PASSWORD: ${EXTERNAL_POSTGRES_PASSWORD}
       EXTERNAL_POSTGRES_HOST: ${EXTERNAL_POSTGRES_HOST}
@@ -38,13 +49,13 @@ services:
       EXTERNAL_POSTGRES_DB: ${EXTERNAL_POSTGRES_DB}
     ports:
       - 5001:5001 # Solo necesario si se accede desde fuera del contenedor
-    # deploy:
-    #  resources:
-    #    reservations:
-    #      devices:
-    #        - driver: nvidia
-    #          count: all
-    #          capabilities: [gpu]
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
 
   postgres:
     container_name: chatbot-postgresql
@@ -73,22 +84,6 @@ services:
       - postgres
       - llm_app
 
-  postgres-external:
-    container_name: chatbot-postgresql-external
-    build:
-      context: ./db_sandoz
-    volumes:
-      - postgres-external:/var/lib/postgresql/data
-    ports:
-      - 5435:5432
-    command: -p 5435
-    environment:
-      POSTGRES_USER: ${EXTERNAL_POSTGRES_USERNAME}
-      POSTGRES_PASSWORD: ${EXTERNAL_POSTGRES_PASSWORD}
-      POSTGRES_HOST: ${EXTERNAL_POSTGRES_HOST}
-      POSTGRES_PORT: ${EXTERNAL_POSTGRES_PORT}
-      POSTGRES_DB: ${EXTERNAL_POSTGRES_DB}
-
   pgadmin:
     container_name: chatbot-pgadmin
     image: dpage/pgadmin4:8.1
@@ -103,10 +98,6 @@ services:
 
 volumes:
   pgadmin-local:
-    external: true
   postgres-local:
-    external: true
   postgres-llm:
-    external: true
   postgres-external:
-    external: true

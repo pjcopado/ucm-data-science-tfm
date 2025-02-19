@@ -24,7 +24,7 @@ class SQLQueryGenerator:
             max_attempts (int): Número máximo de intentos para corregir errores.
         """
         # Instanciar Postgres y cargar el esquema
-        logger.info(f"db_config: {db_config}")
+        print(f"db_config: {db_config}")
         self.postgres = Postgres(db_config)
         logger.info("Fetching table definitions from the database...")
         self.db_schema = self.postgres.get_db_schema()

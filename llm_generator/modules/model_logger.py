@@ -19,7 +19,7 @@ class ModelLogger:
             "password": os.getenv("LLM_POSTGRES_PASSWORD"),
         }
         self.evaluation_log = Postgres(llm_db_config)
-        logger.info(f"llm_db_config: {llm_db_config}")
+        print(f"llm_db_config: {llm_db_config}")
 
     def _to_vector_format(self, emb):
         """
@@ -85,11 +85,11 @@ class ModelLogger:
         try:
             is_update = self.evaluation_log.update_is_correct(uuid, is_correct)
             if is_update:
-                return {status: "update_completed"}
+                return {"status": "update_completed"}
             else:
-                return {status: "update_failed"}
+                return {"status": "update_failed"}
         except Exception as e:
-            return e, {status: "update_failed"}
+            return e, {"status": "update_failed"}
 
     def log_similarity_search(
         self, embedding, top_k=3, compare="user_input", status="OK", threshold=0.0

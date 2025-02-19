@@ -105,7 +105,7 @@ def update_sql(
 # Insight Generator
 class InsightGeneratorRequest(BaseModel):
     user_question: str
-    query_generated: str
+    query: str
     query_result: str
 
 
@@ -120,7 +120,7 @@ def generate_insight(request: Request, obj_in: InsightGeneratorRequest):
     insight_generator: InsightGenerator = request.app.state.llms["insight_generator"]
     response = insight_generator.generate_response(
         obj_in.user_question,
-        obj_in.query_generated,
+        obj_in.query,
         obj_in.query_result,
     )
     return response

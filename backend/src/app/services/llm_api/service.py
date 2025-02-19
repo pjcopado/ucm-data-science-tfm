@@ -24,10 +24,11 @@ class LLMApiService:
         response = self.client.patch(url=url, json=body)
         return response.json()
 
-    async def get_insights_response(self, user_question: str, query_result: str) -> dict:
+    async def get_insights_response(self, user_question: str, query:str, query_result: str) -> dict:
         url = "/insight_generator"
         body = {
             "user_question": user_question,
+            "query": query,
             "query_result": query_result,
         }
         response = self.client.post(url=url, json=body)

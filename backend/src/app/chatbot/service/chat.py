@@ -38,8 +38,8 @@ class ChatService:
             loguru.logger.error(f"Query execution failed: {e}")
         return {"query_response": query_response, "status": status}
 
-    async def construct_insight(self, prompt: str, query_response: str):
-        return await self.llm_api_service.get_insights_response(user_question=prompt, query_result=query_response)
+    async def construct_insight(self, prompt: str, query: str, query_response: str):
+        return await self.llm_api_service.get_insights_response(user_question=prompt, query=query, query_result=query_response)
 
     async def ask(self, prompt: str) -> dict[str, str | None]:
         loguru.logger.info(f"Constructing query... prompt: {prompt}")
@@ -60,8 +60,8 @@ class ChatService:
             raise ChatError(status=enums.ChatMessageResponseStatusEnum.QUERY_EXECUTION_FAILED, detail="Query execution failed")
         query_response = response_2.get("query_response")
 
-        loguru.logger.info(f"Constructing insight... prompt: {prompt}, query_response: {query_response}")
-        response_3 = await self.construct_insight(prompt, query_response)
+        loguru.logger.info(f"Constructing insight... prompt: {prompt}, query: {query}, query_response: {query_response}")
+        response_3 = await self.construct_insight(prompt, query, query_response)
         loguru.logger.info(f"Insight response: {response_3}")
         status = response_3.get("status")
         if status != enums.ChatMessageResponseStatusEnum.INSIGHT_COMPLETED:

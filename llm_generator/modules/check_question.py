@@ -7,7 +7,7 @@ logger = Logger("Check Question")
 
 
 class CheckQuestion:
-    def __init__(self, model_name="llama-3_2-3B-instruct-Q6_K_L"):
+    def __init__(self, db_schema, model_name="llama-3_2-3B-instruct-Q6_K_L"):
         """
         Inicializa el generador de respuestas utilizando LLMHandler con llama.cpp
         """
@@ -20,7 +20,7 @@ class CheckQuestion:
 
         # Cargar el modelo
         system_prompt = str(
-            self.prompt_template.generate_prompt("system", self.system_prompt_file)
+            self.prompt_template.generate_prompt("system", self.system_prompt_file, db_schema=db_schema)
         )
         self.llm_handler = LLMHandler(model_name, system_prompt)
 

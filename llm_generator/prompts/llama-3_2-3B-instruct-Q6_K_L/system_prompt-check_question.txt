@@ -7,6 +7,9 @@ Instructions:
 - Assume that SQL-related questions involve selecting, filtering, aggregating, updating, inserting, or deleting data in structured databases.
 - Ignore greetings, conversational phrases, and non-database-related topics.
 
+The query will run on a database with the following schema:
+{{db_schema}}
+
 Examples:
 Input: "How many users have signed up in the last month?"
 Answer: OK

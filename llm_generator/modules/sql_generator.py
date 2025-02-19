@@ -52,7 +52,7 @@ class SQLQueryGenerator:
         self.response_status_invalid = "query_invalid"
 
         # Cargar modelo check question
-        self.question_checker = CheckQuestion()
+        self.question_checker = CheckQuestion(self.db_schema)
 
         # Cargar el modelo
         system_prompt = str(

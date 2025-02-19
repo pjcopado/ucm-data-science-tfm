@@ -4,10 +4,12 @@ import httpx
 
 from src.app.core.config import settings
 
+TIMEOUT_SECONDS = 60
+
 
 class LLMApiService:
     def __init__(self):
-        self.client = httpx.Client(base_url=settings.LLM_API_URL)
+        self.client = httpx.Client(base_url=settings.LLM_API_URL, timeout=TIMEOUT_SECONDS)
 
     async def construct_query(self, user_question: str, user_instruction: str | None = None) -> dict:
         url = "/sql_generator"
@@ -24,7 +26,7 @@ class LLMApiService:
         response = self.client.patch(url=url, json=body)
         return response.json()
 
-    async def get_insights_response(self, user_question: str, query:str, query_result: str) -> dict:
+    async def get_insights_response(self, user_question: str, query: str, query_result: str) -> dict:
         url = "/insight_generator"
         body = {
             "user_question": user_question,

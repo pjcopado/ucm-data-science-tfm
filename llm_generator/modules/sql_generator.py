@@ -165,7 +165,7 @@ class SQLQueryGenerator:
                         user_input_embedding = self.embedder.embed_text(user_input)
                         query_embedding = self.embedder.embed_text(query)
                         confidence_score = self.model_logger.log_get_confidence_score(
-                            query_embedding, compare="query", threshold=0.85
+                            query_embedding, compare="query", threshold=0.90
                         )
 
                         # Write into log

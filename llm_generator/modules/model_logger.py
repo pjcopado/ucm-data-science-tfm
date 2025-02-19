@@ -94,7 +94,7 @@ class ModelLogger:
         self, embedding, top_k=3, compare="user_input", status="OK", threshold=0.0
     ):
         """
-        Hola
+        Returns a list of rows ordered by similarity (dot product).
         """
         embedding = self._to_vector_format(embedding)
 
@@ -115,7 +115,7 @@ class ModelLogger:
             top_k=top_k,
             column=column,
             is_correct=is_correct,
-            threshold_similarity=threshold,
+            threshold=threshold,
         )
 
     def log_get_confidence_score(self, embedding, compare="query", threshold=0.0):
@@ -137,7 +137,7 @@ class ModelLogger:
             top_k=1,
             column=column,
             is_correct=True,
-            threshold_freq=threshold,  # Para la freq
+            threshold=threshold,  # Para la freq
         )
 
         if not result:

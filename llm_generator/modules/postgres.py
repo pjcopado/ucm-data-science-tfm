@@ -272,8 +272,7 @@ class Postgres:
         top_k=3,
         column="user_input_embedding",
         is_correct=None,
-        threshold_similarity=None,
-        threshold_freq=0.0,
+        threshold=0.0,
     ):
         """
         Returns a list of rows ordered by similarity (dot product).
@@ -298,15 +297,10 @@ class Postgres:
             },
             similarity = float()
         """
-        if threshold_similarity:
-            threshold_freq = threshold_similarity
-        else:
-            threshold_similarity = 0
 
         params = {
             "embedding": embedding,
-            "threshold_similarity": threshold_similarity,
-            "threshold_freq": threshold_freq,
+            "threshold": threshold,
             "top_k": top_k,
             "is_correct": is_correct,
         }
@@ -323,9 +317,9 @@ class Postgres:
         """
 
         where_clause = (
-            "similarity > %(threshold_similarity)s AND is_correct = %(is_correct)s"
+            "similarity > %(threshold)s AND is_correct = %(is_correct)s"
             if is_correct is not None
-            else "similarity > %(threshold_similarity)s"
+            else "similarity > %(threshold)s"
         )
 
         final_query = f"""
@@ -337,7 +331,7 @@ class Postgres:
                 {column},
                 similarity,
                 SUM(
-                    CASE WHEN similarity > %(threshold_freq)s THEN 1 ELSE 0 END
+                    CASE WHEN similarity > %(threshold)s THEN 1 ELSE 0 END
                 ) OVER () AS freq_above_threshold
             FROM (
                 {sub_select}
@@ -351,6 +345,9 @@ class Postgres:
         try:
             with psycopg2.connect(**self.db_config) as conn:
                 with conn.cursor() as cur:
+                    # Use mogrify to get the final query with parameters replaced
+                    final_query_with_params = cur.mogrify(final_query, params)
+                    print("Final Query with Parameters:", final_query_with_params.decode('utf-8'))
                     cur.execute(final_query, params)
                     rows = cur.fetchall()
                     for row in rows:

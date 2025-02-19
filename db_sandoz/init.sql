@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS monthly_balance (
 
 COMMENT ON COLUMN monthly_balance.month IS 'The month of the sales data, formatted as YYYYMM';
 COMMENT ON COLUMN monthly_balance.market IS 'The id of the country representing the market (e.g., US, DE, IT)';
-COMMENT ON COLUMN monthly_balance.bu IS 'The bussiness unit identifier (GN_BP for biosimilars, GN_RE for retail)';
+COMMENT ON COLUMN monthly_balance.bu IS 'The bussiness unit identifier (GN_BP for biosimilars or bio, GN_RE for retail)';
 COMMENT ON COLUMN monthly_balance.volume IS 'The volume of sales in the specified month, region, market, and business unit';
 COMMENT ON COLUMN monthly_balance.value IS 'The monetary value of sales (net) in the specified month, region, market, and business unit';
 
@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS monthly_lo (
 
 COMMENT ON COLUMN monthly_lo.month IS 'The month of the sales data, formatted as YYYYMM';
 COMMENT ON COLUMN monthly_lo.market IS 'The id of the country representing the market (e.g., US, DE, IT)';
-COMMENT ON COLUMN monthly_lo.bu IS 'The bussiness unit identifier (GN_BP for biosimilars, GN_RE for retail)';
+COMMENT ON COLUMN monthly_lo.bu IS 'The bussiness unit identifier (GN_BP for biosimilars or bio, GN_RE for retail)';
 COMMENT ON COLUMN monthly_lo.value IS 'The planned monetary value of sales (net) in the specified month, region, market, and business unit';
 
 -- Cargar datos desde archivos CSV

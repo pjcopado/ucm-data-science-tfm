@@ -160,15 +160,14 @@ class Postgres:
                     for table_name, columns in table_columns.items():
                         schema_details.append(f"TABLE: {table_name}")
                         column_names = ", ".join(col[0] for col in columns)
-                        cur.execute(f"SELECT {column_names} FROM {table_name} LIMIT 1;")
-                        result = cur.fetchone()
+                        cur.execute(f"SELECT DISTINCT {column_names} FROM {table_name} LIMIT 5;")
+                        results = cur.fetchall()
 
-                        for i, (column_name, data_type, description) in enumerate(
-                            columns
-                        ):
-                            example = f", example '{result[i]}'" if result else ""
+                        for i, (column_name, data_type, description) in enumerate(columns):
+                            examples = [str(result[i]) for result in results]
+                            example_str = f", examples {examples}" if examples else ""
                             schema_details.append(
-                                f"  - {column_name}: {data_type}{example}"
+                                f"  - {column_name}: {data_type}{example_str}"
                                 + (
                                     f" - Column description: {description}"
                                     if description

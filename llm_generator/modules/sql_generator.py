@@ -44,6 +44,10 @@ class SQLQueryGenerator:
         self.system_error_prompt_file = "system_error_prompt.txt"
         self.user_error_prompt_file = "user_error_prompt.txt"
 
+        # Response status
+        self.response_status_ok = "query_completed"
+        self.response_status_ko = "query_failed"
+
         # Cargar el modelo
         system_prompt = str(
             self.prompt_template.generate_prompt(
@@ -155,7 +159,7 @@ class SQLQueryGenerator:
                         execution_time,
                     )
 
-                    status = "insight_completed"
+                    status = response_status_ok
 
                     logger.info(f"id: {uuid}")
                     logger.info(f"query: {query}")
@@ -179,7 +183,7 @@ class SQLQueryGenerator:
                 logger.info(f"Retrying... ({attempts}/{self.max_attempts})")
 
             # "A valid query could not be generated. Can you rephrase the question?"
-            status = "query_failed"
+            status = response_status_ko
             response = {
                 "id": uuid,
                 "query": None,
@@ -192,7 +196,7 @@ class SQLQueryGenerator:
             return response
 
         except Exception as e:
-            status = "query_failed"
+            status = response_status_ko
             response = {
                 "id": None,
                 "query": None,

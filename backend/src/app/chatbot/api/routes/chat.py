@@ -6,13 +6,23 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.app.common.api.dependencies.repository import get_repository
 from src.app.common.api.dependencies.session_ext import get_async_session_ext
-from src.app.chatbot import repository, schemas as sch, service
+from src.app.chatbot import repository, schemas as sch, service, enums
 
-router = APIRouter(prefix="/chats", tags=["chat"])
+router = APIRouter(prefix="", tags=["chat"])
 
 
 @router.get(
-    "",
+    "/status",
+    summary="get message status list",
+    status_code=status.HTTP_200_OK,
+    response_model=list,
+)
+async def get_status_list():
+    return enums.ChatMessageResponseStatusEnum.list()
+
+
+@router.get(
+    "/chats",
     summary="get all chats",
     status_code=status.HTTP_200_OK,
     response_model=Page[sch.ChatSch],
@@ -25,7 +35,7 @@ async def get_chats(
 
 
 @router.post(
-    "",
+    "/chats",
     summary="create new chat",
     status_code=status.HTTP_200_OK,
     response_model=sch.ChatSch,

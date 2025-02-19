@@ -42,7 +42,7 @@ async def create_message(
     chat_message_repository: repository.ChatMessageRepository = Depends(
         get_repository(repo_type=repository.ChatMessageRepository)
     ),
-    step_1: t.Literal["pass", "fail"] | None = Query(None),  # for debugging purposes
+    step_1: t.Literal["pass", "fail", "invalid"] | None = Query(None),  # for debugging purposes
     step_2: t.Literal["pass", "fail"] | None = Query(None),  # for debugging purposes
     step_3: t.Literal["pass", "fail"] | None = Query(None),  # for debugging purposes
 ):

@@ -13,3 +13,6 @@ class ChatMessageResponseStatusEnum(str, enum.Enum):
     INSIGHT_FAILED = "insight_failed"
     COMPLETED = "completed"
     ERROR = "error"
+
+    def list():
+        return [item.value for item in ChatMessageResponseStatusEnum]

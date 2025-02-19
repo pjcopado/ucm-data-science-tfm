@@ -7,7 +7,7 @@ logger = Logger("Check Question")
 
 
 class CheckQuestion:
-    def __init__(self, db_schema, model_name="llama-3_2-3B-instruct-Q6_K_L"):
+    def __init__(self, db_schema, model_name="llama-3-sqlcoder-8b-Q8_0"):
         """
         Inicializa el generador de respuestas utilizando LLMHandler con llama.cpp
         """

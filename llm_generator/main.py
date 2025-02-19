@@ -5,7 +5,7 @@ import os
 import sys
 import dotenv
 
-from fastapi import FastAPI, HTTPException, Request, Body
+from fastapi import FastAPI, Request, Body
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 
@@ -74,7 +74,7 @@ class SqlGeneratorResponse(BaseModel):
 
 @app.post("/sql_generator", response_model=SqlGeneratorResponse, tags=["SQL Generator"])
 def generate_sql(request: Request, obj_in: SqlGeneratorRequest):
-    sql_generator = request.app.state.llms["sql_generator"]
+    sql_generator: SQLQueryGenerator = request.app.state.llms["sql_generator"]
     response = sql_generator.generate_sql_query(
         obj_in.user_question,
         obj_in.user_instruction,
@@ -90,7 +90,7 @@ def update_sql(
     id: uuid.UUID,
     is_correct: bool = Body(..., embed=True),
 ):
-    model_logger = request.app.state.llms["model_logger"]
+    model_logger: ModelLogger = request.app.state.llms["model_logger"]
     response = model_logger.user_query_check(
         id,
         is_correct,
@@ -117,7 +117,7 @@ class InsightGeneratorResponse(BaseModel):
     tags=["Insight Generator"],
 )
 def generate_insight(request: Request, obj_in: InsightGeneratorRequest):
-    insight_generator = request.app.state.llms["insight_generator"]
+    insight_generator: InsightGenerator = request.app.state.llms["insight_generator"]
     response = insight_generator.generate_response(
         obj_in.user_question,
         obj_in.query_generated,

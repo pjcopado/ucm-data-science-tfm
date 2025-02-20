@@ -1,0 +1,44 @@
+# Node.js & Yarn
+node_modules
+.yarn
+.pnp
+
+# Archivos de IDE
+.vscode/
+*.swp
+
+# Archivos de sistema
+.DS_Store
+.npm/
+.yarn-cache/
+.eslintcache
+*.log
+
+# Archivos de entorno
+.env
+.env.local
+.env.*.local
+
+# Archivos de pruebas
+__tests__/
+test/
+tests/
+
+# Archivos generados
+dist/
+build/
+coverage/
+.next/
+
+# Archivos de configuración no necesarios
+.prettierignore
+.eslintignore
+.husky/
+
+node_modules/
+.git/
+.vscode/
+*.log
+.env
+build/
+test/

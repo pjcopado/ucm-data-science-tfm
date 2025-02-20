@@ -1,0 +1,20 @@
+FROM postgres:16
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    build-essential \
+    postgresql-server-dev-16 \
+    wget \
+    ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN wget https://github.com/pgvector/pgvector/archive/refs/tags/v0.8.0.tar.gz && \
+    tar xzf v0.8.0.tar.gz && \
+    rm v0.8.0.tar.gz
+
+WORKDIR /pgvector-0.8.0
+RUN make && make install
+
+# Limpieza opcional
+WORKDIR /
+RUN rm -rf /pgvector-0.8.0

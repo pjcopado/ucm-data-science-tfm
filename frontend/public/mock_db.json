@@ -1,0 +1,53 @@
+[
+    {
+        "id": "1",
+        "created_at": "2025-02-05T21:15:01.3952",
+        "updated_at": "2025-02-05T21:15:01.3952",
+        "question": "Cuales son las ganancias de enero de europa",
+        "response":"Las ganancias de enero son 1200",
+        "is_valid": true,
+        "query_explanation": "bla bla bla bla",
+        "status": "pending"
+    },
+    {
+        "id": "1",
+        "created_at": "2025-02-05T21:15:03.3952",
+        "updated_at": "2025-02-05T21:15:03.3952",
+        "question": "Cuales son las ganancias de febrero de europa",
+        "response":"Las ganancias de febrero son 1500",
+        "is_valid": true,
+        "query_explanation": "bla bla bla bla",
+        "status": "pending"
+    },
+    {
+        "id": "1",
+        "created_at": "2025-02-05T21:15:05.3952",
+        "updated_at": "2025-02-05T21:15:05.3952",
+        "question": "Cuales son las ganancias de marzo de europa",
+        "response":"Las ganancias de marzo son 1500",
+        "is_valid": true,
+        "query_explanation": "bla bla bla bla",
+        "status": "pending"
+    },
+    
+    {
+        "id": "2",
+        "query": "Cuales son las ganancias de Febrero",
+        "is_validated": "Validated"
+    },
+    {
+        "id": "3",
+        "query": "Cuales son las ganancias de Marzo",
+        "is_validated": "Validated"
+    },
+    {
+        "id": "4",
+        "query": "Cuales son las ganancias de Abril",
+        "is_validated": "Validated"
+    },
+    {
+        "id": "5",
+        "query": "Cuales son las ganancias de Mayo",
+        "is_validated": "Validated"
+    }
+]

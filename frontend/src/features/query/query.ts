@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { QueryState, queryList,queryById } from '../../interface/query';
+import { QueryState, queryList,queryById, Query } from '../../interface/query';
 import { getQueriesAll, postNewChat, GetQueryById, postQueryById } from '@/api/main';
 
 
@@ -7,6 +7,7 @@ const initialState: QueryState = {
     loading: false,
     query: {} as queryById,    
     queryList: {} as queryList,
+    queryNewMessage: {} as Query,
     queryIdChat: {
         id: '',
         created_at: '',
@@ -93,6 +94,9 @@ const querySlice = createSlice({
         resetReducer:(state) =>{
             state.queryIdChat = initialQueryIdChat
         },
+        resetReducerMessage:(state) =>{
+            state.queryNewMessage = {} as Query
+        },
      },
     extraReducers: (builder) => {
 
@@ -137,7 +141,7 @@ const querySlice = createSlice({
         })
         builder.addCase(postQueriesById.fulfilled, (state, action) => {
             state.loading = false
-            state.query = action.payload
+            state.queryNewMessage = action.payload
             state.error = ''
             state.activeMessage = 'message1'
         })
@@ -166,5 +170,5 @@ const querySlice = createSlice({
 
     },
 })
-export const { setActiveMessage, resetReducer } = querySlice.actions;
+export const { setActiveMessage, resetReducer,resetReducerMessage } = querySlice.actions;
 export const queryReducer = querySlice.reducer

@@ -6,13 +6,13 @@ import {  Query } from "@/interface/query";
 import { usePathname, useRouter } from 'next/navigation'
 import { getQueriesById, postQueriesById } from "@/features";
 import { RootState } from "@/types/reduxTypes";
+import { GetQueryById } from "@/api/main";
 
 
 export const NavbarMainContainer: React.FC = () => {
 
   const dispatch = useAppDispatch()
   const useSelector = useAppSelector
-  const queryState = useSelector((state) => state.query)
   const [data, setData] = useState<Array<Query>>([])
   const [query, setQuery] = useState<string>('')
   const pathname = usePathname();
@@ -21,34 +21,21 @@ export const NavbarMainContainer: React.FC = () => {
   const router = useRouter()
   const [change, setChange] = useState(false)
   const activeMessage = useSelector((state: RootState) => state.query.activeMessage)
-  
 
+  const newMessageGetted = useSelector((state) => state.query.queryNewMessage)
   
+  const queryState = useSelector((state) => state.query)
   const newMessage = async () => {
-    setData([])  
-    dispatch(postQueriesById({ id: lastParam!, question: query }))
-    setChange(true)
-    setQuery('')
+    dispatch(postQueriesById({ id: lastParam!, question: query }))  
   }
+  useEffect(() =>{
+    setData([...data, newMessageGetted]);
+    setQuery('')
+    
+    
 
-  
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Si tienes una operación asíncrona aquí (como obtener datos)
-        const items = queryState.query.items;
-        setData(items);
-      } catch (error) {
-        console.error("Error:", error);
-      } finally {
-        setChange(false);
-      }
-    };
-  
-    fetchData();
-  
-  }, [change]);
-  
+
+  },[ newMessageGetted])
   useEffect(() => {
     if (lastParam) {
       dispatch(getQueriesById(lastParam));
@@ -65,11 +52,10 @@ export const NavbarMainContainer: React.FC = () => {
     }
   }, [activeMessage]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-
   return (
     <>
-      <OpenChatView data={data} newQuery={newMessage} question={query} setQuestion={setQuery} idChat={lastParam!}/>
+    <OpenChatView data={data} newQuery={newMessage} question={query} setQuestion={setQuery} idChat={lastParam!}/>
 
-    </>
+  </>
   )
 }

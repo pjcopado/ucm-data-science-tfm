@@ -12,6 +12,7 @@ const OpenChatView = ({ data, newQuery, question, setQuestion, idChat }:{ data: 
         return date.toLocaleString();
     };
 
+
    
     return (
         <div style={{ position: 'relative', height: '100vh' }}>        

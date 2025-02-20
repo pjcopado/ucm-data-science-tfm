@@ -47,6 +47,7 @@ export interface QueryState {
   queryIdChat: FirstDataResponse;
   error: string | undefined;
   activeMessage: 'message1' | 'message2' | null; 
+  queryNewMessage:Query
 }
 
 

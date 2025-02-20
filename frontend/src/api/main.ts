@@ -14,7 +14,7 @@ export const postNewChat = async (question: string) => {
 }
 
 export const GetQueryById = async (id: string) => {
-    const res = await axios.get(`${mainBase}/v1/chats/${id}/messages`)          
+    const res = await axios.get(`${mainBase}/v1/chats/${id}/messages`)   
     return res.data
 }
 

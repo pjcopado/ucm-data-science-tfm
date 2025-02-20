@@ -46,7 +46,7 @@ async def event_stream():
     yield f"data: {json.dumps({'end': True})}\n\n"
 
 
-@router.get("/event_stream")
+@router.get("/event_stream", include_in_schema=False)
 async def stream_long_json():
     """Streams long text in JSON format."""
     return StreamingResponse(event_stream(), media_type="text/event-stream")

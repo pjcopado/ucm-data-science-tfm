@@ -27,10 +27,8 @@ const ResponseQuery = ({ created_at, status, response, query_explanation, idChat
         case 'insight_failed':
             responseMessage = 'An error occurred while attempting to generate the response. Disparity error between query and response';
             break;
-        case 'completed':
-            responseMessage = response
         default:
-            responseMessage = null;
+            responseMessage = response;
             break;
     }
 
@@ -47,7 +45,7 @@ const ResponseQuery = ({ created_at, status, response, query_explanation, idChat
                     withBorder
                     style={{ "backgroundColor": "rgba(50, 50, 50, 0.85)", "maxWidth": '50%', "marginLeft": "0.2rem" }}
                 >
-                    <Text style={{ "overflowWrap": "break-word", "fontFamily": "sans-serif" }} size="lg" c="#ececec">{responseMessage}</Text>
+                    <Text style={{ "overflowWrap": "break-word", "fontFamily": "sans-serif" }} size="lg" c="#ececec">{responseMessage !== '' ? responseMessage : response}</Text>
                     <Text size="md" c="rgba(176, 176, 176, 1)" ta="left" mt="xs">
                         {formatDate(created_at)}
                     </Text>

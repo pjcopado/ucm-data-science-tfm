@@ -1,5 +1,5 @@
 'use client'
-import React from 'react';
+import React, { useState } from 'react';
 import '@mantine/charts/styles.css';
 import { DonutChart } from '@mantine/charts'
 import { Card, Avatar, Flex, Text } from '@mantine/core';
@@ -12,6 +12,9 @@ const ResponseQuery = ({ created_at, status, response, query_explanation, idChat
         const date = new Date(timestamp);
         return date.toLocaleString();
     };
+
+    const [enable, setEnable] = useState(true)
+
     let responseMessage
     let correctResponse
     switch (status) {
@@ -77,7 +80,7 @@ const ResponseQuery = ({ created_at, status, response, query_explanation, idChat
                     <Text style={{ overflowWrap: "break-word", fontFamily: "sans-serif" }} size="lg" c="#ececec">
                         {query_explanation}
                     </Text>
-                    <ValidationButtons idChat={idChat} idMessage={idMessage} />
+                    {setEnable ? <ValidationButtons idChat={idChat} idMessage={idMessage} setEnable={setEnable} /> :null}
                 </Card>
             </Flex> : null}
         </Flex>

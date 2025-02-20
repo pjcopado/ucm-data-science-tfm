@@ -3,7 +3,7 @@ import { Button } from '@mantine/core';
 import { useState } from 'react';
 import { FaCheck, FaTimes } from 'react-icons/fa';  
 
-const ValidationButtons = ({idChat, idMessage}:{idChat:string, idMessage:string}) => {
+const ValidationButtons = ({idChat, idMessage, setEnable}:{idChat:string, idMessage:string, setEnable: React.Dispatch<React.SetStateAction<boolean>>}) => {
     const [isDisable, setDisable ] = useState<boolean>(false)
 
     const handleValidation = async(isValid:boolean) => {
@@ -16,10 +16,10 @@ const ValidationButtons = ({idChat, idMessage}:{idChat:string, idMessage:string}
     return (
         <div style={{ display: 'flex', gap: '10px', marginTop: '1rem' }}>
             <Button 
-                onClick={() => handleValidation(true)} 
+                onClick={async () => { await handleValidation(true); setEnable(false); }} 
                 disabled={isDisable}
                 style={{
-                    backgroundColor: 'green',
+                    backgroundColor: 'green' as const,
                     color: 'white',
                     border: 'none',
                     padding: '10px',
@@ -30,13 +30,13 @@ const ValidationButtons = ({idChat, idMessage}:{idChat:string, idMessage:string}
                     gap: '8px'
                 }}
             >
-                <FaCheck /> Sí
+                <FaCheck /> Yes
             </Button>
             <Button 
-                onClick={() => handleValidation(false)} 
+                onClick={async () => { await handleValidation(true); setEnable(false) }}                 
                 disabled={isDisable}
                 style={{
-                    backgroundColor: 'red',
+                    backgroundColor: 'red' as const,
                     color: 'white',
                     border: 'none',
                     padding: '10px',

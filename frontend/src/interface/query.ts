@@ -14,6 +14,27 @@ export interface Query {
 
 }
 
+export interface Question{
+  id: string;
+  created_at: string;
+  updated_at: string;
+  question: string;
+}
+
+export interface Response{
+  id:string
+  updated_at:string,
+  llm_response_id:string;
+  query:string;
+  query_explanation: string;
+  query_response: string;
+  confidence_score: number;
+  response: string;
+  is_valid: boolean;
+  status: string;
+
+}
+
 export interface responseBack {
   question: string;
   response: string;

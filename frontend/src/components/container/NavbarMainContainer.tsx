@@ -15,56 +15,40 @@ export const NavbarMainContainer: React.FC = () => {
   const queryState = useSelector((state) => state.query)
   const [data, setData] = useState<Array<Query>>([])
   const [query, setQuery] = useState<string>('')
-  const activeMessage = useSelector((state: RootState) => state.query.activeMessage)
   const pathname = usePathname();
   const segments = pathname.split("/");
   const lastParam = segments.pop();
   const router = useRouter()
-
-
-  const newMessage = async () => {
-    if (lastParam) {
-      dispatch(postQueriesById({ id: lastParam, question: query }))
-    }
-    
-    const newQuestion: Query = {
-      id: Date.now().toString(),
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      question: query,
-      response: '',
-      is_valid: false,
-      query_explanation: '',
-      status: 'pending',
-      llm_response_id: "",
-      query: "",
-      query_response: "",
-      confidence_score: 0
-    }
-    setQuery('')
-    setData([...data, newQuestion]);
-
-    const queryItems = queryState.query.items;
-    useEffect(() =>{
-      const updatedQuestion = {      
-        ...newQuestion,
-        response: queryItems[queryItems.length - 1]?.response,
-        is_valid: queryItems[queryItems.length - 1]?.is_valid,
-        query_explanation: queryItems[queryItems.length - 1]?.query_explanation,
-        status: queryItems[queryItems.length - 1]?.status,
-        updated_at: queryItems[queryItems.length - 1]?.updated_at,
-      };
+  const [change, setChange] = useState(false)
+  const activeMessage = useSelector((state: RootState) => state.query.activeMessage)
   
-      setData((prev) => {
-        return prev.map((qa) =>
-          qa.id === newQuestion.id ? updatedQuestion : qa
-        );
-      });
 
-    },[queryItems[queryItems.length - 1]?.response])
+  
+  const newMessage = async () => {
+    setData([])  
+    dispatch(postQueriesById({ id: lastParam!, question: query }))
+    setChange(true)
+    setQuery('')
   }
 
-
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Si tienes una operación asíncrona aquí (como obtener datos)
+        const items = queryState.query.items;
+        setData(items);
+      } catch (error) {
+        console.error("Error:", error);
+      } finally {
+        setChange(false);
+      }
+    };
+  
+    fetchData();
+  
+  }, [change]);
+  
   useEffect(() => {
     if (lastParam) {
       dispatch(getQueriesById(lastParam));

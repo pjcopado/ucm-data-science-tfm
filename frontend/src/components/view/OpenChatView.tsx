@@ -40,7 +40,7 @@ const OpenChatView = ({ data, newQuery, question, setQuestion, idChat }:{ data: 
                 ))}
             </div>
             <Box>
-                <input onKeyDown={e => {if (e.key === 'Enter') newQuery(e)}} value={question} onChange={(e) => setQuestion(e.target.value)} className='inputfixed' type="text" placeholder="Preguntame algo nuevo en este chat..."></input>
+                <input onKeyDown={e => {if (e.key === 'Enter') newQuery(e)}} value={question} onChange={(e) => setQuestion(e.target.value)} className='inputfixed' type="text" placeholder="Ask me something..."></input>
             </Box>
 
             

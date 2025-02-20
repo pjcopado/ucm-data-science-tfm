@@ -1,5 +1,5 @@
 'use client'
-import React from 'react';
+import React, { useState } from 'react';
 import '@mantine/charts/styles.css';
 import { DonutChart } from '@mantine/charts'
 import { Card, Avatar, Flex, Text } from '@mantine/core';
@@ -7,11 +7,14 @@ import { IconDeviceLaptop } from '@tabler/icons-react';
 import ValidationButtons from './CheckValidationView';
 
 
-const ResponseQuery = ({ created_at, status, response, query_explanation, idChat, idMessage, confidence_score }: { created_at: string, status: string, response: string, query_explanation: string, idChat: string, idMessage: string, confidence_score:number }) => {
+const ResponseQuery = ({ created_at, status, response, query_explanation, idChat, idMessage, confidence_score }: { created_at: string, status: string, response: string, query_explanation: string, idChat: string, idMessage: string, confidence_score: number }) => {
     const formatDate = (timestamp: string | number | Date) => {
         const date = new Date(timestamp);
         return date.toLocaleString();
     };
+
+    const [enable, setEnable] = useState(true)
+
     let responseMessage
     let correctResponse
     switch (status) {
@@ -36,30 +39,36 @@ const ResponseQuery = ({ created_at, status, response, query_explanation, idChat
     }
 
     return (
-        <Flex align="center" direction="column" justify='center' style={{ "width": "70%" }}>
+        <Flex align="center" direction="column" justify='stretch' style={{ "width": "70%" }}>
             <Flex align="center">
-                <Avatar style={{ "marginLeft": "5rem", 'marginRight': '10px' }} color="green" radius="xl">
-                    <IconDeviceLaptop size={20} />
-                </Avatar>
-                <Card
-                    shadow="sm"
-                    padding="md"
-                    radius="md"
-                    withBorder
-                    style={{ "backgroundColor": "rgba(50, 50, 50, 0.85)", "maxWidth": '80%', "marginLeft": "0.2rem" }}
-                >
-                    <Text style={{ "overflowWrap": "break-word", "fontFamily": "sans-serif" }} size="lg" c="#ececec">{responseMessage !== '' ? responseMessage : response}</Text>
-                    <Text size="md" c="rgba(176, 176, 176, 1)" ta="left" mt="xs">
-                        {formatDate(created_at)}
-                    </Text>
-                </Card>
-            </Flex>
-            <DonutChart
-                data={[
-                    { name: 'scorage', value: confidence_score, color: 'blue' },
-                    { name: 'Other', value: (100-confidence_score), color: 'gray.6' },
-                ]}
-            />
+                <Flex align="center">
+                    <Avatar style={{ "marginLeft": "5rem", 'marginRight': '10px' }} color="green" radius="xl">
+                        <IconDeviceLaptop size={20} />
+                    </Avatar>
+                    <Card
+                        shadow="sm"
+                        padding="md"
+                        radius="md"
+                        withBorder
+                        style={{ "backgroundColor": "rgba(50, 50, 50, 0.85)", "maxWidth": '80%', "marginLeft": "0.2rem" }}
+                    >
+                        <Text style={{ "overflowWrap": "break-word", "fontFamily": "sans-serif" }} size="lg" c="#ececec">{correctResponse ? correctResponse : responseMessage}</Text>
+                        <Text size="md" c="rgba(176, 176, 176, 1)" ta="left" mt="xs">
+                            {formatDate(created_at)}
+                        </Text>
+                    </Card>
+                </Flex>
+                <div style={{"marginLeft":"5px"}}>
+                    <DonutChart  size={100}
+                        data={[
+                            { name: 'scorage', value: ((confidence_score * 100)), color: 'blue' },
+                            { name: 'Other', value: (100 - (confidence_score * 100)), color: 'gray.6' },
+                        ]}
+                        chartLabel={confidence_score}
+                    />
+                </div>
+
+            </Flex> 
             {correctResponse !== '' ? <Flex direction='row'>
                 <Card
                     shadow="sm"
@@ -71,7 +80,7 @@ const ResponseQuery = ({ created_at, status, response, query_explanation, idChat
                     <Text style={{ overflowWrap: "break-word", fontFamily: "sans-serif" }} size="lg" c="#ececec">
                         {query_explanation}
                     </Text>
-                    <ValidationButtons idChat={idChat} idMessage={idMessage} />
+                    {enable ? <ValidationButtons idChat={idChat} idMessage={idMessage} setEnable={setEnable} /> :null}
                 </Card>
             </Flex> : null}
         </Flex>

@@ -109,7 +109,7 @@ class SQLQueryGenerator:
                             top_k=3,
                             compare="user_input",
                             status="OK",
-                            threshold=0.90,
+                            threshold=0.85,
                         )
                         logger.info(f"similarity_list: {similarity_list}")
 

@@ -84,7 +84,7 @@ services:
       - backend/.env.docker
     depends_on:
       - postgres
-      # - llm_app
+      - llm_app
 
   pgadmin:
     container_name: chatbot-pgadmin
@@ -98,7 +98,8 @@ services:
       - PGADMIN_DEFAULT_EMAIL=chatbot@gmail.com
       - PGADMIN_DEFAULT_PASSWORD=123456
     
-  nextjs:
+  frontend:
+    container_name: frontend
     build:
       context: ./frontend
     ports:

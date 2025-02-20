@@ -15,17 +15,26 @@ export const NavbarMainContainer: React.FC = () => {
   const queryState = useSelector((state) => state.query)
   const [data, setData] = useState<Array<Query>>([])
   const [query, setQuery] = useState<string>('')
-  const activeMessage = useSelector((state: RootState) => state.query.activeMessage)
   const pathname = usePathname();
   const segments = pathname.split("/");
   const lastParam = segments.pop();
   const router = useRouter()
+  const activeMessage = useSelector((state: RootState) => state.query.activeMessage)
+  
 
-
+  
   const newMessage = async () => {
-    if (lastParam) {
-      dispatch(postQueriesById({ id: lastParam, question: query }))
+
+    setData([])
+    if (activeMessage === 'message1') {
+      setData(queryState.query.items);
     }
+    if (activeMessage === 'message2') {
+      setData([queryState.queryIdChat.first_message]);
+    }
+  
+    dispatch(postQueriesById({ id: lastParam!, question: query }))
+    
     
     const newQuestion: Query = {
       id: Date.now().toString(),
@@ -36,7 +45,7 @@ export const NavbarMainContainer: React.FC = () => {
       is_valid: false,
       query_explanation: '',
       status: 'pending',
-      llm_response_id: "",
+      llm_response_id: "",  
       query: "",
       query_response: "",
       confidence_score: 0
@@ -45,23 +54,28 @@ export const NavbarMainContainer: React.FC = () => {
     setData([...data, newQuestion]);
 
     const queryItems = queryState.query.items;
-    useEffect(() =>{
-      const updatedQuestion = {      
-        ...newQuestion,
-        response: queryItems[queryItems.length - 1]?.response,
-        is_valid: queryItems[queryItems.length - 1]?.is_valid,
-        query_explanation: queryItems[queryItems.length - 1]?.query_explanation,
-        status: queryItems[queryItems.length - 1]?.status,
-        updated_at: queryItems[queryItems.length - 1]?.updated_at,
-      };
-  
-      setData((prev) => {
-        return prev.map((qa) =>
-          qa.id === newQuestion.id ? updatedQuestion : qa
-        );
-      });
 
-    },[queryItems[queryItems.length - 1]?.response])
+    const lastItem = queryItems[queryItems.length - 1];
+
+    if (lastItem.response) {
+      const updatedQuestion = {
+        ...newQuestion,
+        response: lastItem.response,
+        is_valid: lastItem.is_valid,
+        query_explanation: lastItem.query_explanation,
+        status: lastItem.status,
+        updated_at: lastItem.updated_at,
+      }
+
+    setData((prev) => {
+      prev.map((qa) =>
+        console.log(qa.id, newQuestion.id)
+      );
+      return prev.map((qa) =>
+        qa.id === newQuestion.id ? updatedQuestion : qa
+      );
+    })};
+
   }
 
 

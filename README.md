@@ -1,80 +1,51 @@
-# Project Name
+# 🚀 LLM ChatBot
+An AI-powered chatbot to perform queries over a database, built using a Large Language Model (LLM).
+This chatbot is containerized and ready to run with just Docker and Docker Compose.
 
-A brief description of your project.
+## 📌 Features
+- 🏗️ Easy Setup: No manual installation—just run Docker!
+- 🚀 Fast Deployment: Ready to go in seconds.
+- 🛠 Scalable & Portable: Run it anywhere with Docker.
+- 🔌 API-Driven: Exposes a REST API for chatbot interaction.
 
-## Table of Contents
+## 📦 Requirements
+Make sure you have the following installed:
 
-1. [Features](#features)
-2. [Prerequisites](#prerequisites)
-3. [Installation](#installation)
-4. [Usage](#usage)
-5. [Contributing](#contributing)
-6. [License](#license)
+- Docker: [Install Docker](https://docs.docker.com/engine/install/)
+- Docker Compose: [Install Docker Compose](https://docs.docker.com/compose/install/)
 
----
 
-## Features
 
-- [x] Isolated virtual environment management.
-- [x] Simple and intuitive dependency handling.
-- [x] Lightweight and fast setup.
 
----
 
-## Prerequisites
-
-Before installing and running this project, make sure you have the following:
-
-- **curl**: Used for downloading the installation script.
-- Python 3.12.8 or higher.
-
-Install `curl` if not already available:
-```bash
-# For Debian/Ubuntu
-sudo apt install curl
-
-# For macOS
-brew install curl
-```
-
----
-
-## Instalation
-
-Follow the steps below to install and set up the project:
-
-1- Install uv via the official installation script:
+## 🏃‍♂️ Quick Start
+Clone this repository:
 
 ```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh
+git clone https://github.com/pjcopado/ucm-data-science-tfm.git
+cd ucm-data-science-tfm
 ```
 
-2- Restat your rerminal
+## 1️⃣ Build & Run
+Build & Run the chatbot using Docker Compose:
 
 ```bash
-exec bash
+docker compose up --build
 ```
 
-3- Verify that uv is installed:
+This will:
+
+- Pull/build the required Docker images.
+- Start the chatbot server.
+
+## 2️⃣ Check Running Containers
+To verify that the chatbot is running:
 
 ```bash
-uv --version
+docker ps
 ```
+You should see a running container named `ucm-data-science-tfm`.
 
-4- Install Python Version 3.12.8:
 
-```bash
-uv python install 3.12.8
-```
-
-5- Sync libraries
-
-```bash
-uv sync
-```
----
-
-## Usage
-
-1- Start application
-
+## 3️⃣ Interact with the Chatbot
+Go to url `http://localhost:3000`

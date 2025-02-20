@@ -14,10 +14,6 @@ Make sure you have the following installed:
 - Docker: [Install Docker](https://docs.docker.com/engine/install/)
 - Docker Compose: [Install Docker Compose](https://docs.docker.com/compose/install/)
 
-
-
-
-
 ## 🏃‍♂️ Quick Start
 Clone this repository:
 
@@ -44,8 +40,30 @@ To verify that the chatbot is running:
 ```bash
 docker ps
 ```
+
 You should see a running container named `ucm-data-science-tfm`.
 
-
 ## 3️⃣ Interact with the Chatbot
-Go to url `http://localhost:3000`
+Frontend is running in `http://localhost:3000`.
+
+Go ahead and write your question!
+
+![home](docs/front_1.png)
+
+![chat](docs/front_2.png)
+
+## 4️⃣ Backend API
+Backend API is running in `http://localhost:5000`.
+
+![back api](docs/back_1.png)
+
+![back api chat](docs/back_2.png)
+
+## 5️⃣ LLM API
+LLM API is running in `http://localhost:5001`.
+
+![llm api](docs/llm_1.png)
+
+![llm api sql](docs/llm_2.png)
+
+![llm api insight](docs/llm_3.png)

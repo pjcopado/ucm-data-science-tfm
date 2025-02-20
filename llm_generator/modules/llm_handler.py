@@ -76,7 +76,7 @@ class LLMHandler:
                     break
                 continue
 
-            if "error:" in line.lower():
+            if "error" in line.lower() or "fail" in line.lower():
                 logger.error(f"[llama.cpp >] {line}")
                 raise RuntimeError(line)
 
@@ -102,7 +102,7 @@ class LLMHandler:
                     break
                 continue
 
-            if "error:" in line:
+            if "error" in line.lower() or "fail" in line.lower():
                 logger.error(f"[llama.cpp >] Error: {line}")
                 raise RuntimeError(line)
 

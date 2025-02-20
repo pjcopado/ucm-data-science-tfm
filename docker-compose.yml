@@ -99,13 +99,15 @@ services:
       - PGADMIN_DEFAULT_PASSWORD=123456
     
   nextjs:
-    build: .
+    build:
+      context: ./frontend
+    working_dir: /app
     ports:
       - "3000:3000"
     environment:
       NODE_ENV: production
     volumes:
-      - .:/app
+      - ./frontend:/app:delegated
       - /app/node_modules
 
 volumes:

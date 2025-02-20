@@ -10,6 +10,7 @@
     "export": "next export"
   },
   "dependencies": {
+    "@mantine/charts": "^7.17.0",
     "@mantine/core": "^7.16.2",
     "@mantine/hooks": "^7.16.2",
     "@reduxjs/toolkit": "^2.5.1",
@@ -22,7 +23,8 @@
     "react-dom": "^19.0.0",
     "react-icons": "^5.4.0",
     "react-redux": "^9.2.0",
-    "react-simple-typewriter": "^5.0.1"
+    "react-simple-typewriter": "^5.0.1",
+    "recharts": "2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

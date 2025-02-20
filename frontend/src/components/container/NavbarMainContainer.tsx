@@ -43,22 +43,25 @@ export const NavbarMainContainer: React.FC = () => {
     }
     setQuery('')
     setData([...data, newQuestion]);
-    const queryItems = queryState.query.items;
-    const updatedQuestion = {
-      
-      ...newQuestion,
-      response: queryItems[queryItems.length - 1]?.response,
-      is_valid: queryItems[queryItems.length - 1]?.is_valid,
-      query_explanation: queryItems[queryItems.length - 1]?.query_explanation,
-      status: queryItems[queryItems.length - 1]?.status,
-      updated_at: queryItems[queryItems.length - 1]?.updated_at,
-    };
 
-    setData((prev) => {
-      return prev.map((qa) =>
-        qa.id === newQuestion.id ? updatedQuestion : qa
-      );
-    });
+    const queryItems = queryState.query.items;
+    useEffect(() =>{
+      const updatedQuestion = {      
+        ...newQuestion,
+        response: queryItems[queryItems.length - 1]?.response,
+        is_valid: queryItems[queryItems.length - 1]?.is_valid,
+        query_explanation: queryItems[queryItems.length - 1]?.query_explanation,
+        status: queryItems[queryItems.length - 1]?.status,
+        updated_at: queryItems[queryItems.length - 1]?.updated_at,
+      };
+  
+      setData((prev) => {
+        return prev.map((qa) =>
+          qa.id === newQuestion.id ? updatedQuestion : qa
+        );
+      });
+
+    },[queryItems[queryItems.length - 1]?.response])
   }
 
 

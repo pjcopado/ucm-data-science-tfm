@@ -35,7 +35,7 @@ const OpenChatView = ({ data, newQuery, question, setQuestion, idChat }:{ data: 
                                 </Text>
                             </Card>
                         </Flex>
-                        {item.status === 'pending' ? <EllipsisLoader/> : <ResponseQuery created_at={item.created_at} status={item.status} response={item.response} query_explanation={item.query_explanation} idChat={idChat} idMessage={item.id}/>}
+                        {item.status === 'pending' ? <EllipsisLoader/> : <ResponseQuery created_at={item.created_at} status={item.status} response={item.response} query_explanation={item.query_explanation} idChat={idChat} idMessage={item.id} confidence_score={item.confidence_score}/>}
                     </div>
                 ))}
             </div>

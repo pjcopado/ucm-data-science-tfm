@@ -1,16 +1,19 @@
 'use client'
 import React from 'react';
+import '@mantine/charts/styles.css';
+import { DonutChart } from '@mantine/charts'
 import { Card, Avatar, Flex, Text } from '@mantine/core';
 import { IconDeviceLaptop } from '@tabler/icons-react';
 import ValidationButtons from './CheckValidationView';
 
 
-const ResponseQuery = ({ created_at, status, response, query_explanation, idChat, idMessage }: { created_at: string, status: string, response: string, query_explanation: string, idChat: string, idMessage: string }) => {
+const ResponseQuery = ({ created_at, status, response, query_explanation, idChat, idMessage, confidence_score }: { created_at: string, status: string, response: string, query_explanation: string, idChat: string, idMessage: string, confidence_score:number }) => {
     const formatDate = (timestamp: string | number | Date) => {
         const date = new Date(timestamp);
         return date.toLocaleString();
     };
     let responseMessage
+    let correctResponse
     switch (status) {
         case 'error':
             responseMessage = 'Unknown error. We are resolving the error. Please refresh the website, if the error persists try again later';
@@ -28,14 +31,14 @@ const ResponseQuery = ({ created_at, status, response, query_explanation, idChat
             responseMessage = 'An error occurred while attempting to generate the response. Disparity error between query and response';
             break;
         default:
-            responseMessage = response;
+            correctResponse = response;
             break;
     }
 
     return (
-        <Flex align="center" direction="column" justify='center' style={{"width":"70%"}}>
+        <Flex align="center" direction="column" justify='center' style={{ "width": "70%" }}>
             <Flex align="center">
-                <Avatar style={{ "marginLeft": "5rem", 'marginRight':'10px' }} color="green" radius="xl">
+                <Avatar style={{ "marginLeft": "5rem", 'marginRight': '10px' }} color="green" radius="xl">
                     <IconDeviceLaptop size={20} />
                 </Avatar>
                 <Card
@@ -51,7 +54,13 @@ const ResponseQuery = ({ created_at, status, response, query_explanation, idChat
                     </Text>
                 </Card>
             </Flex>
-            {responseMessage !== response ? <Flex direction='row'>
+            <DonutChart
+                data={[
+                    { name: 'scorage', value: confidence_score, color: 'blue' },
+                    { name: 'Other', value: (100-confidence_score), color: 'gray.6' },
+                ]}
+            />
+            {correctResponse !== '' ? <Flex direction='row'>
                 <Card
                     shadow="sm"
                     padding="lg"
@@ -64,7 +73,7 @@ const ResponseQuery = ({ created_at, status, response, query_explanation, idChat
                     </Text>
                     <ValidationButtons idChat={idChat} idMessage={idMessage} />
                 </Card>
-            </Flex>  : null}
+            </Flex> : null}
         </Flex>
 
     )

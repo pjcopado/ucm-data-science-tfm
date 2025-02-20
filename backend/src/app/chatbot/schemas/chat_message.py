@@ -29,8 +29,11 @@ class ChatMessageUpdateSch(OrmBaseModel):
 
 
 class ChatMessageSch(ChatMessageBaseSch, TimestampModelMixin, UUIDModelMixin):
+    llm_response_id: uuid.UUID | None
+    query: str | None
+    query_explanation: str | None
+    query_response: str | None
+    confidence_score: float | None
     response: str | None
     is_valid: bool | None
-    query_explanation: str | None
-    confidence_score: float | None
     status: ChatMessageResponseStatusEnum

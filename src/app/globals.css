@@ -1,0 +1,29 @@
+html,
+body {
+    height: 100%;
+}
+
+.inter-100 {
+    font-family: "Inter", serif;
+    font-optical-sizing: auto;
+    font-weight: 100;
+    font-style: normal;
+  }
+
+  .inputfixed {
+    position: fixed;
+    border-radius: 25px;
+    bottom: 50px;
+    left: 600px;
+    width: 40%;
+    height: 8%;
+    box-sizing: border-box;
+    padding: 10px;
+    background-color: rgba(50, 50, 50);
+    border: 2px solid grey;
+  }
+
+.inputfixed::placeholder {
+    color: grey;
+    font-size: 1.2em;
+  }

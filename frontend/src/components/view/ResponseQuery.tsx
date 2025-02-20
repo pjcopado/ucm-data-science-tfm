@@ -52,7 +52,7 @@ const ResponseQuery = ({ created_at, status, response, query_explanation, idChat
                         withBorder
                         style={{ "backgroundColor": "rgba(50, 50, 50, 0.85)", "maxWidth": '80%', "marginLeft": "0.2rem" }}
                     >
-                        <Text style={{ "overflowWrap": "break-word", "fontFamily": "sans-serif" }} size="lg" c="#ececec">{correctResponse !== '' ? correctResponse : responseMessage}</Text>
+                        <Text style={{ "overflowWrap": "break-word", "fontFamily": "sans-serif" }} size="lg" c="#ececec">{correctResponse ? correctResponse : responseMessage}</Text>
                         <Text size="md" c="rgba(176, 176, 176, 1)" ta="left" mt="xs">
                             {formatDate(created_at)}
                         </Text>
@@ -80,7 +80,7 @@ const ResponseQuery = ({ created_at, status, response, query_explanation, idChat
                     <Text style={{ overflowWrap: "break-word", fontFamily: "sans-serif" }} size="lg" c="#ececec">
                         {query_explanation}
                     </Text>
-                    {setEnable ? <ValidationButtons idChat={idChat} idMessage={idMessage} setEnable={setEnable} /> :null}
+                    {enable ? <ValidationButtons idChat={idChat} idMessage={idMessage} setEnable={setEnable} /> :null}
                 </Card>
             </Flex> : null}
         </Flex>

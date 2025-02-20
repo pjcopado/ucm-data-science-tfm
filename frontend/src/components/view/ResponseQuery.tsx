@@ -28,7 +28,7 @@ const ResponseQuery = ({ created_at, status, response, query_explanation, idChat
             responseMessage = 'An error occurred while attempting to generate the response. Disparity error between query and response';
             break;
         default:
-            responseMessage = null;
+            responseMessage = response;
             break;
     }
 
@@ -51,7 +51,7 @@ const ResponseQuery = ({ created_at, status, response, query_explanation, idChat
                     </Text>
                 </Card>
             </Flex>
-            {responseMessage === '' ? <Flex direction='row'>
+            {responseMessage !== response ? <Flex direction='row'>
                 <Card
                     shadow="sm"
                     padding="lg"

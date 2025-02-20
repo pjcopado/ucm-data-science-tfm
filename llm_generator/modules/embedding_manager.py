@@ -8,7 +8,7 @@ class EmbeddingManager:
     def __init__(self, model_name="all-MiniLM-L12-v2", device="cuda"):
 
         if device == "cuda":
-            self.device = "cuda" if torch.cuda.is_available() else "auto"
+            self.device = "cuda" if torch.cuda.is_available() else "cpu"
         else:
             self.device = device
 

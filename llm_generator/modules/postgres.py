@@ -93,12 +93,23 @@ class Postgres:
 
         # Query para obtener el esquema de las tablas incluyendo descripciones
         schema_query = """
+        WITH table_descriptions AS (
+            SELECT
+            t.table_name,
+            pg_catalog.obj_description(pgc.oid, 'pg_class') AS table_description
+            FROM information_schema.tables t
+            INNER JOIN pg_catalog.pg_class pgc
+            ON t.table_name = pgc.relname
+            WHERE t.table_type='BASE TABLE'
+            AND t.table_schema='public'
+        )
         SELECT
             c.table_schema,
             c.table_name,
             c.column_name,
             c.data_type,
-            pgd.description
+            pgd.description as column_description,
+            td.table_description as table_description
         FROM pg_catalog.pg_statio_all_tables as st
         LEFT JOIN pg_catalog.pg_description pgd on (
             pgd.objoid = st.relid
@@ -107,6 +118,9 @@ class Postgres:
             pgd.objsubid   = c.ordinal_position and
             c.table_schema = st.schemaname and
             c.table_name   = st.relname
+        )
+        LEFT JOIN table_descriptions td on (
+            c.table_name = td.table_name
         )
         WHERE c.table_schema = 'public'
         ORDER BY c.table_name, c.ordinal_position;
@@ -150,6 +164,7 @@ class Postgres:
                         column_name,
                         data_type,
                         description,
+                        table_description,
                     ) in cur.fetchall():
                         table_columns.setdefault(table_name, []).append(
                             (column_name, data_type, description)
@@ -159,13 +174,15 @@ class Postgres:
                     schema_details = []
                     examples = {}
                     for table_name, columns in table_columns.items():
-                        schema_details.append(f"TABLE: {table_name}")
+                        table_desc = f"- Description: {columns[0][2]}" if columns[0][2] else ""
+                        schema_details.append(f"TABLE: {table_name} {table_desc}")
                         for col in columns:
                             cur.execute(f"SELECT DISTINCT {col[0]} FROM {table_name} LIMIT 5;")
                             examples[col[0]] = cur.fetchall()
 
                         for i, (column_name, data_type, description) in enumerate(columns):
-                            example_str = f", examples {examples[column_name]}" if examples else ""
+                            example_str = f", examples {[example[0] for example in examples[column_name]]}" if examples else ""
+                            # example_str = f", examples {examples[column_name][0]}" if examples else ""
                             schema_details.append(
                                 f"  - {column_name}: {data_type}{example_str}"
                                 + (

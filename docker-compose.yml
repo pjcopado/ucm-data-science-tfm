@@ -98,16 +98,17 @@ services:
       - PGADMIN_DEFAULT_EMAIL=chatbot@gmail.com
       - PGADMIN_DEFAULT_PASSWORD=123456
     
-  # nextjs:
-  #   build:
-  #     context: ./frontend
-  #   ports:
-  #   - "3000:3000"
-  #   environment:
-  #     NODE_ENV: production
-  #   volumes:
-  #   - .:/frontend
-  #   - /frontend/node_modules
+  frontend:
+    container_name: frontend
+    build:
+      context: ./frontend
+    ports:
+    - "3000:3000"
+    environment:
+      NODE_ENV: production
+    volumes:
+    - .:/frontend
+    - /frontend/node_modules
 
 volumes:
   pgadmin-local:

@@ -84,7 +84,7 @@ services:
       - backend/.env.docker
     depends_on:
       - postgres
-      - llm_app
+      # - llm_app
 
   pgadmin:
     container_name: chatbot-pgadmin
@@ -99,14 +99,15 @@ services:
       - PGADMIN_DEFAULT_PASSWORD=123456
     
   nextjs:
-    build: .
+    build:
+      context: ./frontend
     ports:
-      - "3000:3000"
+    - "3000:3000"
     environment:
       NODE_ENV: production
     volumes:
-      - .:/app
-      - /app/node_modules
+    - .:/frontend
+    - /frontend/node_modules
 
 volumes:
   pgadmin-local:

@@ -1,4 +1,5 @@
 import { patchValidation } from '@/api/main';
+import { Button } from '@mantine/core';
 import { useState } from 'react';
 import { FaCheck, FaTimes } from 'react-icons/fa';  
 
@@ -14,7 +15,7 @@ const ValidationButtons = ({idChat, idMessage}:{idChat:string, idMessage:string}
 
     return (
         <div style={{ display: 'flex', gap: '10px', marginTop: '1rem' }}>
-            <button 
+            <Button 
                 onClick={() => handleValidation(true)} 
                 disabled={isDisable}
                 style={{
@@ -30,8 +31,8 @@ const ValidationButtons = ({idChat, idMessage}:{idChat:string, idMessage:string}
                 }}
             >
                 <FaCheck /> Sí
-            </button>
-            <button 
+            </Button>
+            <Button 
                 onClick={() => handleValidation(false)} 
                 disabled={isDisable}
                 style={{
@@ -47,7 +48,7 @@ const ValidationButtons = ({idChat, idMessage}:{idChat:string, idMessage:string}
                 }}
             >
                 <FaTimes /> No
-            </button>
+            </Button>
         </div>
     );
 };

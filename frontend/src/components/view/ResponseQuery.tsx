@@ -33,9 +33,9 @@ const ResponseQuery = ({ created_at, status, response, query_explanation, idChat
     }
 
     return (
-        <Flex align="center" direction="column" justify='start'>
-            <Flex>
-                <Avatar style={{ "marginLeft": "5rem" }} color="green" radius="xl">
+        <Flex align="center" direction="column" justify='center' style={{"width":"70%"}}>
+            <Flex align="center">
+                <Avatar style={{ "marginLeft": "5rem", 'marginRight':'10px' }} color="green" radius="xl">
                     <IconDeviceLaptop size={20} />
                 </Avatar>
                 <Card
@@ -51,7 +51,7 @@ const ResponseQuery = ({ created_at, status, response, query_explanation, idChat
                     </Text>
                 </Card>
             </Flex>
-            <Flex direction='row'>
+            {responseMessage === '' ? <Flex direction='row'>
                 <Card
                     shadow="sm"
                     padding="lg"
@@ -62,9 +62,9 @@ const ResponseQuery = ({ created_at, status, response, query_explanation, idChat
                     <Text style={{ overflowWrap: "break-word", fontFamily: "sans-serif" }} size="lg" c="#ececec">
                         {query_explanation}
                     </Text>
-                    {responseMessage === '' ? <ValidationButtons idChat={idChat} idMessage={idMessage} /> : null}
+                    <ValidationButtons idChat={idChat} idMessage={idMessage} />
                 </Card>
-            </Flex>
+            </Flex>  : null}
         </Flex>
 
     )

@@ -1,63 +1,63 @@
 services:
-  # postgres-external:
-  #   container_name: external-postgresql
-  #   image: postgres:16
-  #   environment:
-  #     POSTGRES_USER: ${EXTERNAL_POSTGRES_USERNAME}
-  #     POSTGRES_PASSWORD: ${EXTERNAL_POSTGRES_PASSWORD}
-  #     POSTGRES_DB: ${EXTERNAL_POSTGRES_DB}
-  #   volumes:
-  #     - ./db_sandoz:/docker-entrypoint-initdb.d
-  #     - postgres-external:/var/lib/postgresql/data
-  #   ports:
-  #     - 5435:5432
-  #   command: -p 5435
+  postgres-external:
+    container_name: external-postgresql
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${EXTERNAL_POSTGRES_USERNAME}
+      POSTGRES_PASSWORD: ${EXTERNAL_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${EXTERNAL_POSTGRES_DB}
+    volumes:
+      - ./db_sandoz:/docker-entrypoint-initdb.d
+      - postgres-external:/var/lib/postgresql/data
+    ports:
+      - 5435:5432
+    command: -p 5435
 
-  # llm_db:
-  #   build:
-  #     context: ./llm_generator/db_model
-  #   container_name: llm_db
-  #   environment:
-  #     POSTGRES_USER: ${POSTGRES_LLM_USER}
-  #     POSTGRES_PASSWORD: ${POSTGRES_LLM_PASSWORD}
-  #     POSTGRES_DB: ${POSTGRES_LLM_DB}
-  #   volumes:
-  #     - ./llm_generator/db_model:/docker-entrypoint-initdb.d
-  #     - postgres-llm:/var/lib/postgresql/data
-  #   ports:
-  #     - 5434:5432
-  #   command: -p 5434
+  llm_db:
+    build:
+      context: ./llm_generator/db_model
+    container_name: llm_db
+    environment:
+      POSTGRES_USER: ${POSTGRES_LLM_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_LLM_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_LLM_DB}
+    volumes:
+      - ./llm_generator/db_model:/docker-entrypoint-initdb.d
+      - postgres-llm:/var/lib/postgresql/data
+    ports:
+      - 5434:5432
+    command: -p 5434
 
-  # llm_app:
-  #   build:
-  #     context: ./llm_generator
-  #     args:
-  #       GPU_TYPE: nvidia
-  #   container_name: llm_handler
-  #   depends_on:
-  #     - postgres-external
-  #     - llm_db
-  #   environment:
-  #     ENV: production
-  #     POSTGRES_LLM_USER: ${POSTGRES_LLM_USER}
-  #     POSTGRES_LLM_PASSWORD: ${POSTGRES_LLM_PASSWORD}
-  #     POSTGRES_LLM_HOST: ${POSTGRES_LLM_HOST}
-  #     POSTGRES_LLM_PORT: ${POSTGRES_LLM_PORT}
-  #     POSTGRES_LLM_DB: ${POSTGRES_LLM_DB}
-  #     EXTERNAL_POSTGRES_USERNAME: ${EXTERNAL_POSTGRES_USERNAME}
-  #     EXTERNAL_POSTGRES_PASSWORD: ${EXTERNAL_POSTGRES_PASSWORD}
-  #     EXTERNAL_POSTGRES_HOST: ${EXTERNAL_POSTGRES_HOST}
-  #     EXTERNAL_POSTGRES_PORT: ${EXTERNAL_POSTGRES_PORT}
-  #     EXTERNAL_POSTGRES_DB: ${EXTERNAL_POSTGRES_DB}
-  #   ports:
-  #     - 5001:5001 # Solo necesario si se accede desde fuera del contenedor
-  #   deploy:
-  #     resources:
-  #       reservations:
-  #         devices:
-  #           - driver: nvidia
-  #             count: all
-  #             capabilities: [ gpu ]
+  llm_app:
+    build:
+      context: ./llm_generator
+      args:
+        GPU_TYPE: nvidia
+    container_name: llm_handler
+    depends_on:
+      - postgres-external
+      - llm_db
+    environment:
+      ENV: production
+      POSTGRES_LLM_USER: ${POSTGRES_LLM_USER}
+      POSTGRES_LLM_PASSWORD: ${POSTGRES_LLM_PASSWORD}
+      POSTGRES_LLM_HOST: ${POSTGRES_LLM_HOST}
+      POSTGRES_LLM_PORT: ${POSTGRES_LLM_PORT}
+      POSTGRES_LLM_DB: ${POSTGRES_LLM_DB}
+      EXTERNAL_POSTGRES_USERNAME: ${EXTERNAL_POSTGRES_USERNAME}
+      EXTERNAL_POSTGRES_PASSWORD: ${EXTERNAL_POSTGRES_PASSWORD}
+      EXTERNAL_POSTGRES_HOST: ${EXTERNAL_POSTGRES_HOST}
+      EXTERNAL_POSTGRES_PORT: ${EXTERNAL_POSTGRES_PORT}
+      EXTERNAL_POSTGRES_DB: ${EXTERNAL_POSTGRES_DB}
+    ports:
+      - 5001:5001
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu ]
 
   postgres:
     container_name: chatbot-postgresql
@@ -84,7 +84,7 @@ services:
       - backend/.env.docker
     depends_on:
       - postgres
-      # - llm_app
+      - llm_app
 
   pgadmin:
     container_name: chatbot-pgadmin
@@ -98,20 +98,20 @@ services:
       - PGADMIN_DEFAULT_EMAIL=chatbot@gmail.com
       - PGADMIN_DEFAULT_PASSWORD=123456
     
-  # frontend:
-  #   container_name: frontend
-  #   build:
-  #     context: ./frontend
-  #   ports:
-  #   - "3000:3000"
-  #   environment:
-  #     NODE_ENV: production
-  #   volumes:
-  #   - .:/frontend
-  #   - /frontend/node_modules
+  frontend:
+    container_name: frontend
+    build:
+      context: ./frontend
+    ports:
+    - "3000:3000"
+    environment:
+      NODE_ENV: production
+    volumes:
+    - .:/frontend
+    - /frontend/node_modules
 
 volumes:
   pgadmin-local:
   postgres-local:
-  # postgres-llm:
-  # postgres-external:
+  postgres-llm:
+  postgres-external:

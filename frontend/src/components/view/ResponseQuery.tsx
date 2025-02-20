@@ -49,7 +49,7 @@ const ResponseQuery = ({ created_at, status, response, query_explanation, idChat
                         withBorder
                         style={{ "backgroundColor": "rgba(50, 50, 50, 0.85)", "maxWidth": '80%', "marginLeft": "0.2rem" }}
                     >
-                        <Text style={{ "overflowWrap": "break-word", "fontFamily": "sans-serif" }} size="lg" c="#ececec">{responseMessage !== '' ? responseMessage : response}</Text>
+                        <Text style={{ "overflowWrap": "break-word", "fontFamily": "sans-serif" }} size="lg" c="#ececec">{correctResponse !== '' ? correctResponse : responseMessage}</Text>
                         <Text size="md" c="rgba(176, 176, 176, 1)" ta="left" mt="xs">
                             {formatDate(created_at)}
                         </Text>
@@ -61,6 +61,7 @@ const ResponseQuery = ({ created_at, status, response, query_explanation, idChat
                             { name: 'scorage', value: confidence_score, color: 'blue' },
                             { name: 'Other', value: (100 - confidence_score), color: 'gray.6' },
                         ]}
+                        chartLabel={confidence_score}
                     />
                 </div>
 

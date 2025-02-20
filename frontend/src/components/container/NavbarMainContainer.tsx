@@ -24,58 +24,9 @@ export const NavbarMainContainer: React.FC = () => {
 
   
   const newMessage = async () => {
-
-    setData([])
-    if (activeMessage === 'message1') {
-      setData(queryState.query.items);
-    }
-    if (activeMessage === 'message2') {
-      setData([queryState.queryIdChat.first_message]);
-    }
-  
+    setData([])  
     dispatch(postQueriesById({ id: lastParam!, question: query }))
-    
-    
-    const newQuestion: Query = {
-      id: Date.now().toString(),
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      question: query,
-      response: '',
-      is_valid: false,
-      query_explanation: '',
-      status: 'pending',
-      llm_response_id: "",  
-      query: "",
-      query_response: "",
-      confidence_score: 0
-    }
-    setQuery('')
-    setData([...data, newQuestion]);
-
-    const queryItems = queryState.query.items;
-
-    const lastItem = queryItems[queryItems.length - 1];
-
-    if (lastItem.response) {
-      const updatedQuestion = {
-        ...newQuestion,
-        response: lastItem.response,
-        is_valid: lastItem.is_valid,
-        query_explanation: lastItem.query_explanation,
-        status: lastItem.status,
-        updated_at: lastItem.updated_at,
-      }
-
-    setData((prev) => {
-      prev.map((qa) =>
-        console.log(qa.id, newQuestion.id)
-      );
-      return prev.map((qa) =>
-        qa.id === newQuestion.id ? updatedQuestion : qa
-      );
-    })};
-
+    setData(queryState.query.items)
   }
 
 

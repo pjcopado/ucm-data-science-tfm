@@ -14,8 +14,8 @@ const OpenChatView = ({ data, newQuery, question, setQuestion, idChat }:{ data: 
 
    
     return (
-        <>        
-            <Box style={{ "marginTop": "2rem", "marginLeft": "5rem", "width": "70rem" }} className="chat">
+        <div style={{ position: 'relative', height: '100vh' }}>        
+            <div style={{ "marginTop": "2rem", "marginLeft": "5rem", "width": "70rem", overflowY: 'auto','height': 'calc(100vh - 70px)', 'paddingBottom': '10rem'}} className="no-scrollbar">                
                 {data.map((item) => (     
                     <div key={item.created_at} className="space-y-2">
                         <Flex align="center" justify="flex-end" gap="md" style={{ "margin": "3rem" }}>
@@ -38,11 +38,13 @@ const OpenChatView = ({ data, newQuery, question, setQuestion, idChat }:{ data: 
                         {item.status === 'pending' ? <EllipsisLoader/> : <ResponseQuery created_at={item.created_at} status={item.status} response={item.response} query_explanation={item.query_explanation} idChat={idChat} idMessage={item.id}/>}
                     </div>
                 ))}
-            </Box>
+            </div>
             <Box>
                 <input onKeyDown={e => {if (e.key === 'Enter') newQuery(e)}} value={question} onChange={(e) => setQuestion(e.target.value)} className='inputfixed' type="text" placeholder="Preguntame algo nuevo en este chat..."></input>
             </Box>
-        </>
+
+            
+        </div>
 
     );
 };

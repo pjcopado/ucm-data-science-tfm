@@ -58,8 +58,8 @@ const ResponseQuery = ({ created_at, status, response, query_explanation, idChat
                 <div style={{"marginLeft":"5px"}}>
                     <DonutChart  size={100}
                         data={[
-                            { name: 'scorage', value: confidence_score, color: 'blue' },
-                            { name: 'Other', value: (100 - confidence_score), color: 'gray.6' },
+                            { name: 'scorage', value: ((confidence_score * 100)), color: 'blue' },
+                            { name: 'Other', value: (100 - (confidence_score * 100)), color: 'gray.6' },
                         ]}
                         chartLabel={confidence_score}
                     />

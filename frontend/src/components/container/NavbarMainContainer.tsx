@@ -27,6 +27,7 @@ export const NavbarMainContainer: React.FC = () => {
     setData([])  
     dispatch(postQueriesById({ id: lastParam!, question: query }))
     setData(queryState.query.items)
+    setQuery('')
   }
 
 

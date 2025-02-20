@@ -19,6 +19,7 @@ export const NavbarMainContainer: React.FC = () => {
   const segments = pathname.split("/");
   const lastParam = segments.pop();
   const router = useRouter()
+  const [change, setChange] = useState(false)
   const activeMessage = useSelector((state: RootState) => state.query.activeMessage)
   
 
@@ -26,11 +27,28 @@ export const NavbarMainContainer: React.FC = () => {
   const newMessage = async () => {
     setData([])  
     dispatch(postQueriesById({ id: lastParam!, question: query }))
-    setData(queryState.query.items)
+    setChange(true)
     setQuery('')
   }
 
-
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Si tienes una operación asíncrona aquí (como obtener datos)
+        const items = queryState.query.items;
+        setData(items);
+      } catch (error) {
+        console.error("Error:", error);
+      } finally {
+        setChange(false);
+      }
+    };
+  
+    fetchData();
+  
+  }, [change]);
+  
   useEffect(() => {
     if (lastParam) {
       dispatch(getQueriesById(lastParam));
